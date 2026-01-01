@@ -31,8 +31,7 @@ public class ShowTime extends BaseEntity {
 
     private LocalTime time;
 
-    public ShowTime(Long id, ShowInfo showInfo, String area, String fcltyNm, Long seatScale, LocalTime time) {
-        this.id = id;
+    public ShowTime(ShowInfo showInfo, String area, String fcltyNm, Long seatScale, LocalTime time) {
         this.showInfo = showInfo;
         this.area = area;
         this.fcltyNm = fcltyNm;
