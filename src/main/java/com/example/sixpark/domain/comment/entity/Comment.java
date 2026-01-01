@@ -1,0 +1,48 @@
+package com.example.sixpark.domain.comment.entity;
+
+import com.example.sixpark.common.entity.BaseEntity;
+import com.example.sixpark.domain.post.entity.Post;
+import com.example.sixpark.domain.user.entity.User;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Getter
+@Table(name = "comments")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Comment extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 255)
+    private String content;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Comment parentComment;
+
+    public Comment(String content, Post post, User user, Comment parentComment) {
+        this.content = content;
+        this.post = post;
+        this.user = user;
+        this.parentComment = parentComment;
+    }
+
+    public void update(String content) {
+        this.content = content;
+    }
+
+
+}
