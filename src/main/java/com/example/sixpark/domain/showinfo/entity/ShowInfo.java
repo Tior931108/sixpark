@@ -35,7 +35,8 @@ public class ShowInfo {
     private Integer pcseguidanse;
     private boolean isDeleted = false;
 
-    public ShowInfo(String mt20id, String prfNm, List<String> prfCast, LocalDate prfpdFrom, LocalDate prfpdTo, String poster, Integer pcseguidanse) {
+    public ShowInfo(Genre genre, String mt20id, String prfNm, List<String> prfCast, LocalDate prfpdFrom, LocalDate prfpdTo, String poster, Integer pcseguidanse) {
+        this.genre = genre;
         this.mt20id = mt20id;
         this.prfNm = prfNm;
         this.prfCast = prfCast;
