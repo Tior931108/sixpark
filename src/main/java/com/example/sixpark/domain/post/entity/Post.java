@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Entity
 @Getter
@@ -26,10 +27,13 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "showinfoes_id")
     private ShowInfo showinfo;
 
+    @Column(nullable = false)
     private String title;
 
+    @Column(nullable = false)
     private String content;
 
+    @Column(nullable = false)
     private boolean isDeleted = false;
 
     public Post(User user, ShowInfo showinfo, String title, String content) {
