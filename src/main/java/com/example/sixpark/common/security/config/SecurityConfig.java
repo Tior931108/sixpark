@@ -60,7 +60,7 @@ public class SecurityConfig {
 
                 // API별 접근 권한 설정
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/error").permitAll() // 로그인, 회원가입
+                        .requestMatchers("/api/auth/**", "/error").permitAll() // 로그인, 회원가입, 로그아웃, 비밀번호 확인
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
