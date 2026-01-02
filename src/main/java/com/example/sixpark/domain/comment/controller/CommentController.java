@@ -20,14 +20,20 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    // 댓글 생성
+    /**
+     * 댓글 생성
+     * @param request 게시글 id, 댓글 내용, 부모 댓글 id를 포함한 요청 DTO
+     *                - parentId가 null이면 일반 댓글
+     *                - parentId가 있으면 대댓글
+     * @return 댓글 생성 결과
+     */
     @PostMapping
     public ResponseEntity<ApiResponse<CommentCreateResponse>> createComment(
             // Todo @AuthenticationPrincipal AuthUser authUser
             @Valid @RequestBody CommentCreateRequest request
     ) {
         Long authUser = 1L;
-        CommentCreateResponse response = commentService.createComment(authUser, request); // todo 로그인 유저의 아이디 값만 서비스로
+        CommentCreateResponse response = commentService.createComment(authUser, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("댓글이 생성되었습니다.", response));
     }
 }

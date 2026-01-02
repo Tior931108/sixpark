@@ -25,7 +25,14 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    // 댓글 생성
+    /**
+     * 댓글 생성
+     * @param authUser 로그인한 유저의 아이디
+     * @param request 댓글 생성 요청 DTO
+     *                - parentId가 null이면 일반 댓글 생성
+     *                - parentId가 있으면 대댓글 생성
+     * @return 댓글 생성 결과
+     */
     @Transactional
     public CommentCreateResponse createComment(Long authUser, CommentCreateRequest request) {
         User writer = getUserByIdOrThrow(authUser);
@@ -44,7 +51,11 @@ public class CommentService {
         return CommentCreateResponse.from(dto, WriterResponse.from(writer));
     }
 
-    // 부모 댓글 검증
+    /**
+     * 부모 댓글 검증
+     * @param parent 부모 댓글
+     * @param post 댓글 작성 게시글
+     */
     private static void invalidParentComment(Comment parent, Post post) {
         // 해당 게시글에 부모 댓글이 없으면 예외처리 발생
         if(!parent.getPost().getId().equals(post.getId())) {
@@ -56,23 +67,35 @@ public class CommentService {
         }
     }
 
-    // 유저 아이디가 일치하는 유저가 없으면 예외처리
+    /**
+     * 유저 아이디에 해당하는 유저 조회 없으면 예외 발생
+     * @param id 유저 아이디
+     * @return 조회된 유저 엔티티
+     */
     private User getUserByIdOrThrow(Long id) {
         return userRepository.findById(id).orElseThrow(
                 () -> new CustomException(NOT_FOUND_USER)
         );
     }
 
-    // 게시글 아이디가 일치하는 게시글 없으면 예외처리
+    /**
+     * 게시글 아이디에 해당하는 게시글 조회 없으면 예외 발생
+     * @param id 게시글 아이디
+     * @return 조회된 게시글 엔티티
+     */
     private Post getPostByIdOrThrow(Long id) {
         return postRepository.findById(id).orElseThrow(
                 () -> new CustomException(NOT_FOUND_TASK) // 나중에 상수를 NOT_FOUND_POST로 변경
         );
     }
 
-    // 부모 댓글이 있으면 
-    private Comment getCommentByIdOrThrow(Long parentId) {
-        return commentRepository.findById(parentId).orElseThrow(
+    /**
+     * 댓글 아이디에 해당하는 댓글 조회 없으면 예외 발생
+     * @param id 댓글 아이디
+     * @return 조회된 댓글 엔티티
+     */
+    private Comment getCommentByIdOrThrow(Long id) {
+        return commentRepository.findById(id).orElseThrow(
                 () -> new CustomException(NOT_FOUND_COMMENT)
         );
     }
