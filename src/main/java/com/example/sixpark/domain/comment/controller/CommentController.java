@@ -2,16 +2,15 @@ package com.example.sixpark.domain.comment.controller;
 
 import com.example.sixpark.common.response.ApiResponse;
 import com.example.sixpark.domain.comment.model.request.CommentCreateRequest;
+import com.example.sixpark.domain.comment.model.request.CommentUpdateRequest;
 import com.example.sixpark.domain.comment.model.response.CommentCreateResponse;
+import com.example.sixpark.domain.comment.model.response.CommentUpdateResponse;
 import com.example.sixpark.domain.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,5 +34,22 @@ public class CommentController {
         Long authUser = 1L;
         CommentCreateResponse response = commentService.createComment(authUser, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("댓글이 생성되었습니다.", response));
+    }
+
+    /**
+     * 댓글 수정
+     * @param commentId 댓글 아이디
+     * @param request 댓글 내용을 포함한 요청 DTO
+     * @return 댓글 수정 결과
+     */
+    @PutMapping("/{commentId}")
+    public ResponseEntity<ApiResponse<CommentUpdateResponse>> updateComment(
+            // Todo @AuthenticationPrincipal AuthUser authUser
+            @PathVariable Long commentId,
+            @Valid @RequestBody CommentUpdateRequest request
+    ) {
+        Long authUser = 1L;
+        CommentUpdateResponse response = commentService.updateComment(authUser, commentId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("댓글이 수정되었습니다.", response));
     }
 }

@@ -4,7 +4,9 @@ import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.domain.comment.entity.Comment;
 import com.example.sixpark.domain.comment.model.dto.CommentDto;
 import com.example.sixpark.domain.comment.model.request.CommentCreateRequest;
+import com.example.sixpark.domain.comment.model.request.CommentUpdateRequest;
 import com.example.sixpark.domain.comment.model.response.CommentCreateResponse;
+import com.example.sixpark.domain.comment.model.response.CommentUpdateResponse;
 import com.example.sixpark.domain.comment.model.response.WriterResponse;
 import com.example.sixpark.domain.comment.repository.CommentRepository;
 import com.example.sixpark.domain.post.entity.Post;
@@ -98,5 +100,34 @@ public class CommentService {
         return commentRepository.findById(id).orElseThrow(
                 () -> new CustomException(NOT_FOUND_COMMENT)
         );
+    }
+
+    /**
+     * 댓글 수정
+     * @param authUser 로그인한 유저의 아이디
+     * @param commentId 댓글 아이디
+     * @param request 댓글 수정 요청 DTO
+     * @return 댓글 수정 결과
+     */
+    @Transactional
+    public CommentUpdateResponse updateComment(Long authUser, Long commentId, CommentUpdateRequest request) {
+        User writer = getUserByIdOrThrow(authUser);
+        Comment comment = getCommentByIdOrThrow(commentId);
+        matchedWriter(writer.getId(), comment.getUser().getId());
+        comment.update(request.getContent());
+        commentRepository.save(comment);
+        CommentDto dto = CommentDto.from(comment);
+        return CommentUpdateResponse.from(dto, WriterResponse.from(writer));
+    }
+
+    /**
+     * 작성자가 일치하지 않으면 예외 발생
+     * @param writerId
+     * @param commentUserId
+     */
+    private static void matchedWriter(Long writerId, Long commentUserId) {
+        if(!writerId.equals(commentUserId)) {
+            throw new CustomException(NOT_MODIFY_AUTHORIZED);
+        }
     }
 }
