@@ -21,3 +21,8 @@ jwt:
   secret:
     key: ${JWT_SECRET_KEY}
 
+kopis:
+  api:
+    key: ${KOPIS_API_KEY}
+    url: ${KOPIS_API_URL}
+
