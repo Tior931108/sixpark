@@ -6,13 +6,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Table(name = "genre")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Genre extends BaseEntity {
+public class Genre {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +22,26 @@ public class Genre extends BaseEntity {
     @Column(length = 30, nullable = false)
     private String genrenm;
 
+    @Column(nullable = false, updatable = false)
+    private LocalDate createdAt;
+
     public Genre(String genrenm) {
         this.genrenm = genrenm;
     }
+
+    public static Genre create(String genrenm) {
+        Genre genre = new Genre();
+        genre.genrenm = genrenm;
+        genre.createdAt = LocalDate.now();
+        return genre;
+    }
+
+    // 장르 생성 시간
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDate.now();
+        }
+    }
+
 }

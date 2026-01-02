@@ -25,25 +25,54 @@ public class ShowInfo {
     @JoinColumn(name = "genre_id")
     private Genre genre;
 
-    @Column(length = 30 ,nullable = false)
-    private String mt20id;
-    private String prfNm;
-    private List<String> prfCast;
-    private LocalDate prfpdFrom;
-    private LocalDate prfpdTo;
-    private String poster;
-    private Integer pcseguidanse;
-    private boolean isDeleted = false;
+    @Column(nullable = false, length = 30, unique = true)
+    private String mt20id; // KOPIS api 공연ID
 
-    public ShowInfo(Genre genre, String mt20id, String prfNm, List<String> prfCast, LocalDate prfpdFrom, LocalDate prfpdTo, String poster, Integer pcseguidanse) {
+    @Column(nullable = false)
+    private String prfnm; // 공연 제목
+
+    @Column(nullable = false, length = 500)
+    private List<String> prfcast; // 공연 출연진
+
+    @Column(nullable = false)
+    private LocalDate prfpdfrom; // 공연 시작 날짜
+
+    @Column(nullable = false)
+    private LocalDate prfpdto; // 공연 종료 날짜
+
+    @Column(columnDefinition = "TEXT")
+    private String poster; // 포스터 이미지 링크
+
+    @Column(nullable = false)
+    private Integer pcseguidance; // 가격
+
+    @Column(nullable = false, length = 10)
+    private boolean isDeleted = false; // 논리 삭제 여부
+
+    public ShowInfo(Genre genre, String mt20id, String prfnm, List<String> prfcast, LocalDate prfpdfrom, LocalDate prfpdto, String poster, Integer pcseguidance) {
         this.genre = genre;
         this.mt20id = mt20id;
-        this.prfNm = prfNm;
-        this.prfCast = prfCast;
-        this.prfpdFrom = prfpdFrom;
-        this.prfpdTo = prfpdTo;
+        this.prfnm = prfnm;
+        this.prfcast = prfcast;
+        this.prfpdfrom = prfpdfrom;
+        this.prfpdto = prfpdto;
         this.poster = poster;
-        this.pcseguidanse = pcseguidanse;
+        this.pcseguidance = pcseguidance;
+    }
+
+    public static ShowInfo create(Genre genre, String mt20id, String prfnm, List<String> prfcast,
+                                  LocalDate prfpdfrom, LocalDate prfpdto,
+                                  String poster, Integer pcseguidance) {
+        ShowInfo showInfo = new ShowInfo();
+        showInfo.genre = genre;
+        showInfo.mt20id = mt20id;
+        showInfo.prfnm = prfnm;
+        showInfo.prfcast = prfcast;
+        showInfo.prfpdfrom = prfpdfrom;
+        showInfo.prfpdto = prfpdto;
+        showInfo.poster = poster;
+        showInfo.pcseguidance = pcseguidance;
+        return showInfo;
     }
 
     public void softDelete() {

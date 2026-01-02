@@ -21,22 +21,37 @@ public class ShowTime extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "show_info_id")
-    private ShowInfo showInfo;
+    private ShowInfo showInfo; // 공연정보 ID
 
-    private String area;
+    @Column(nullable = false, length = 30)
+    private String area; // 지역
 
-    private String fcltyNm;
+    @Column(nullable = false, length = 30)
+    private String fcltynm; // 시설 이름
 
-    private Long seatScale;
+    @Column(nullable = false)
+    private Long seatscale; // 좌석 수
 
-    private LocalTime time;
+    @Column(nullable = false)
+    private LocalTime time; // 공연 시간
 
-    public ShowTime(ShowInfo showInfo, String area, String fcltyNm, Long seatScale, LocalTime time) {
+    public ShowTime(ShowInfo showInfo, String area, String fcltynm, Long seatscale, LocalTime time) {
         this.showInfo = showInfo;
         this.area = area;
-        this.fcltyNm = fcltyNm;
-        this.seatScale = seatScale;
+        this.fcltynm = fcltynm;
+        this.seatscale = seatscale;
         this.time = time;
+    }
+
+    public static ShowTime create(ShowInfo showInfo, String area, String fcltynm,
+                                  Long seatscale, LocalTime time) {
+        ShowTime showTime = new ShowTime();
+        showTime.showInfo = showInfo;
+        showTime.area = area;
+        showTime.fcltynm = fcltynm;
+        showTime.seatscale = seatscale;
+        showTime.time = time;
+        return showTime;
     }
 
 }
