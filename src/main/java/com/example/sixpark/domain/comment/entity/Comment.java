@@ -33,6 +33,9 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "parent_id")
     private Comment parentComment;
 
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
     public Comment(String content, Post post, User user, Comment parentComment) {
         this.content = content;
         this.post = post;
@@ -44,5 +47,8 @@ public class Comment extends BaseEntity {
         this.content = content;
     }
 
-
+    public void softDelete() {
+        this.isDeleted = true;
+        this.content = "해당 댓글은 삭제되었습니다";
+    }
 }

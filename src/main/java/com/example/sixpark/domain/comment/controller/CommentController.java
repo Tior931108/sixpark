@@ -52,4 +52,19 @@ public class CommentController {
         CommentUpdateResponse response = commentService.updateComment(authUser, commentId, request);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("댓글이 수정되었습니다.", response));
     }
+
+    /**
+     * 댓글 삭제
+     * @param commentId 댓글 아이디
+     * @return 댓글 삭제 결과
+     */
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<ApiResponse<Void>> deleteComment(
+            // Todo @AuthenticationPrincipal AuthUser authUser
+            @PathVariable Long commentId
+    ) {
+        Long authUser = 1L;
+        commentService.deleteComment(authUser, commentId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("댓글이 삭제되었습니다"));
+    }
 }

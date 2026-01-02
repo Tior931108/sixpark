@@ -122,12 +122,25 @@ public class CommentService {
 
     /**
      * 작성자가 일치하지 않으면 예외 발생
-     * @param writerId
-     * @param commentUserId
+     * @param userId 유저 아이디
+     * @param commentUserId 댓글작성자 아이디
      */
-    private static void matchedWriter(Long writerId, Long commentUserId) {
-        if(!writerId.equals(commentUserId)) {
+    private static void matchedWriter(Long userId, Long commentUserId) {
+        if(!userId.equals(commentUserId)) {
             throw new CustomException(NOT_MODIFY_AUTHORIZED);
         }
+    }
+
+    /**
+     * 댓글 삭제
+     * @param authUser 유저 아이디
+     * @param commentId 댓글 아이디
+     */
+    @Transactional
+    public void deleteComment(Long authUser, Long commentId) {
+        User writer = getUserByIdOrThrow(authUser);
+        Comment comment = getCommentByIdOrThrow(commentId);
+        matchedWriter(writer.getId(), comment.getUser().getId());
+        comment.softDelete();
     }
 }
