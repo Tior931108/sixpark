@@ -90,4 +90,21 @@ public class PostService {
         return PostUpdateResponse.from(postDto);
 
     }
+
+    @Transactional
+    public void deletePost(Long userId, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_POST));
+
+        if (post.isDeleted()) {
+            throw new CustomException(ErrorMessage.NOT_FOUND_POST);
+        }
+
+        // 작성자 본인 확인
+        if (!post.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorMessage.NOT_DELETE_AUTHORIZED);
+        }
+
+        post.softDelete();
+    }
 }

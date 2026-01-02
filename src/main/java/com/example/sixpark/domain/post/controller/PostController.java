@@ -71,4 +71,13 @@ public class PostController {
         PostUpdateResponse response = postService.updatePost(userId, postid, request);
         return ResponseEntity.ok(ApiResponse.success("게시글이 수정되었습니다.", response));
     }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> deletePost(
+            @RequestParam Long userId,
+            @PathVariable Long postId) {
+
+        postService.deletePost(userId, postId);
+        return ResponseEntity.ok(ApiResponse.success("게시글이 삭제되었습니다."));
+    }
 }
