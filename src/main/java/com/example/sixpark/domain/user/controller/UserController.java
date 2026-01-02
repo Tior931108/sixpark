@@ -4,6 +4,7 @@ import com.example.sixpark.common.response.ApiResponse;
 import com.example.sixpark.common.security.jwt.JwtProvider;
 import com.example.sixpark.common.security.userDetail.AuthUser;
 import com.example.sixpark.domain.user.model.request.UserLoginRequest;
+import com.example.sixpark.domain.user.model.request.UserPasswordChangeRequest;
 import com.example.sixpark.domain.user.model.request.UserSignupRequest;
 import com.example.sixpark.domain.user.model.request.UserUpdateRequest;
 import com.example.sixpark.domain.user.model.response.UserGetResponse;
@@ -77,10 +78,20 @@ public class UserController {
     }
 
     /**
-     * 유저 정보 수정
+     * 유저 정보 수정 API
      */
     @PutMapping("/api/users")
     public ResponseEntity<ApiResponse<UserUpdateResponse>> updateMyInfo(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid UserUpdateRequest request) {
         return ResponseEntity.ok(ApiResponse.success("회원정보 수정 완료", userService.updateMyInfo(authUser.getUserId(), request)));
     }
+
+    /**
+     * 비밀번호 변경 API
+     */
+    @PutMapping("/api/users/password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid UserPasswordChangeRequest request) {
+        userService.changePassword(authUser.getUserId(), request);
+        return ResponseEntity.ok(ApiResponse.success("비밀번호 변경 완료"));
+    }
+
 }
