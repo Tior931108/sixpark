@@ -5,8 +5,10 @@ import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.domain.user.entity.User;
 import com.example.sixpark.domain.user.model.dto.UserDto;
 import com.example.sixpark.domain.user.model.request.UserSignupRequest;
+import com.example.sixpark.domain.user.model.request.UserUpdateRequest;
 import com.example.sixpark.domain.user.model.response.UserGetResponse;
 import com.example.sixpark.domain.user.model.response.UserSignupResponse;
+import com.example.sixpark.domain.user.model.response.UserUpdateResponse;
 import com.example.sixpark.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -62,6 +64,25 @@ public class UserService {
         User user = getUserByIdOrThrow(userId);
 
         return UserGetResponse.from(UserDto.from(user));
+    }
+
+    /**
+     * 유저 정보 수정
+     */
+    @Transactional
+    public UserUpdateResponse updateMyInfo(Long userId, UserUpdateRequest request) {
+
+        User user = getUserByIdOrThrow(userId);
+
+        // 닉네임 중복 검사
+        if (userRepository.existsByNickname(request.getNickname())) {
+            throw new CustomException(ErrorMessage.EXIST_NAME);
+        }
+
+        // 변경
+        user.update(request.getName(), request.getNickname());
+
+        return UserUpdateResponse.from(UserDto.from(user));
     }
 
     /**

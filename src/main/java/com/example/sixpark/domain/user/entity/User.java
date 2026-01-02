@@ -54,9 +54,8 @@ public class User extends BaseEntity {
         this.isDeleted = true;
     }
 
-    public void update(String name, String nickname, LocalDate birth) {
+    public void update(String name, String nickname) {
         this.name = name;
         this.nickname = nickname;
-        this.birth = birth;
     }
 }

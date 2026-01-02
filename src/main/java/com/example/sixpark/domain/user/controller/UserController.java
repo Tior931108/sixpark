@@ -5,9 +5,11 @@ import com.example.sixpark.common.security.jwt.JwtProvider;
 import com.example.sixpark.common.security.userDetail.AuthUser;
 import com.example.sixpark.domain.user.model.request.UserLoginRequest;
 import com.example.sixpark.domain.user.model.request.UserSignupRequest;
+import com.example.sixpark.domain.user.model.request.UserUpdateRequest;
 import com.example.sixpark.domain.user.model.response.UserGetResponse;
 import com.example.sixpark.domain.user.model.response.UserLoginResponse;
 import com.example.sixpark.domain.user.model.response.UserSignupResponse;
+import com.example.sixpark.domain.user.model.response.UserUpdateResponse;
 import com.example.sixpark.domain.user.repository.UserRepository;
 import com.example.sixpark.domain.user.service.UserService;
 import jakarta.validation.Valid;
@@ -30,7 +32,8 @@ public class UserController {
 
     /**
      * 회원가입 API
-     * */
+     *
+     */
     @PostMapping("/api/auth/signup")
     public ResponseEntity<ApiResponse<UserSignupResponse>> signup(@RequestBody @Valid UserSignupRequest request) {
         return ResponseEntity.ok(ApiResponse.success("회원가입이 완료되었습니다.", userService.signup(request)));
@@ -71,5 +74,13 @@ public class UserController {
     @GetMapping("/api/users")
     public ResponseEntity<ApiResponse<UserGetResponse>> getMyInfo(@AuthenticationPrincipal AuthUser user) {
         return ResponseEntity.ok(ApiResponse.success("내 정보 조회 성공", (userService.getMyInfo(user.getUserId()))));
+    }
+
+    /**
+     * 유저 정보 수정
+     */
+    @PutMapping("/api/users")
+    public ResponseEntity<ApiResponse<UserUpdateResponse>> updateMyInfo(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid UserUpdateRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("회원정보 수정 완료", userService.updateMyInfo(authUser.getUserId(), request)));
     }
 }
