@@ -5,12 +5,14 @@ import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.domain.user.entity.User;
 import com.example.sixpark.domain.user.model.dto.UserDto;
 import com.example.sixpark.domain.user.model.request.UserSignupRequest;
+import com.example.sixpark.domain.user.model.response.UserGetResponse;
 import com.example.sixpark.domain.user.model.response.UserSignupResponse;
 import com.example.sixpark.domain.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +21,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * 회원가입 API 비지니스 로직
+     */
     @Transactional
     public UserSignupResponse signup(UserSignupRequest request) {
 
@@ -47,6 +52,27 @@ public class UserService {
 
         // DTO 변환
         return UserSignupResponse.from(UserDto.from(user));
+    }
+
+    /**
+     * 내 정보조회 API 서비스 로직
+     */
+    @Transactional(readOnly = true)
+    public UserGetResponse getMyInfo(Long userId) {
+        User user = getUserByIdOrThrow(userId);
+
+        return UserGetResponse.from(UserDto.from(user));
+    }
+
+    /**
+     * 공통 사용자 조회 메서드
+     */
+    private User getUserByIdOrThrow(Long userId) {
+        return userRepository.findById(userId)
+                .filter(user -> !user.isDeleted())
+                .orElseThrow(() ->
+                        new CustomException(ErrorMessage.NOT_FOUND_USER)
+                );
     }
 
 }

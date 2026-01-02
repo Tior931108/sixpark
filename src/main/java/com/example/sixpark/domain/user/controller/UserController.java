@@ -5,8 +5,10 @@ import com.example.sixpark.common.security.jwt.JwtProvider;
 import com.example.sixpark.common.security.userDetail.AuthUser;
 import com.example.sixpark.domain.user.model.request.UserLoginRequest;
 import com.example.sixpark.domain.user.model.request.UserSignupRequest;
+import com.example.sixpark.domain.user.model.response.UserGetResponse;
 import com.example.sixpark.domain.user.model.response.UserLoginResponse;
 import com.example.sixpark.domain.user.model.response.UserSignupResponse;
+import com.example.sixpark.domain.user.repository.UserRepository;
 import com.example.sixpark.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,7 +26,11 @@ public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
 
+    /**
+     * 회원가입 API
+     * */
     @PostMapping("/api/auth/signup")
     public ResponseEntity<ApiResponse<UserSignupResponse>> signup(@RequestBody @Valid UserSignupRequest request) {
         return ResponseEntity.ok(ApiResponse.success("회원가입이 완료되었습니다.", userService.signup(request)));
@@ -56,5 +63,13 @@ public class UserController {
 
         // 응답 반환
         return ResponseEntity.ok(ApiResponse.success("로그인 성공", UserLoginResponse.from(accessToken)));
+    }
+
+    /**
+     * 내 정보 조회 API
+     */
+    @GetMapping("/api/users")
+    public ResponseEntity<ApiResponse<UserGetResponse>> getMyInfo(@AuthenticationPrincipal AuthUser user) {
+        return ResponseEntity.ok(ApiResponse.success("내 정보 조회 성공", (userService.getMyInfo(user.getUserId()))));
     }
 }

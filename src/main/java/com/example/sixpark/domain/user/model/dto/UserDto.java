@@ -1,5 +1,6 @@
 package com.example.sixpark.domain.user.model.dto;
 
+import com.example.sixpark.common.enums.UserRole;
 import com.example.sixpark.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class UserDto {
     private String name;
     private String nickname;
     private LocalDate birth;
+    private UserRole role;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -29,6 +31,7 @@ public class UserDto {
                 user.getName(),
                 user.getNickname(),
                 user.getBirth(),
+                user.getRole(),
                 user.getCreatedAt(),
                 user.getModifiedAt()
         );
