@@ -47,15 +47,16 @@ public class User extends BaseEntity {
         this.name = name;
         this.nickname = nickname;
         this.birth = birth;
-        this.role = role;
+        this.role = UserRole.USER;
     }
 
     public void softDelete() {
         this.isDeleted = true;
     }
 
-    public void update(String password, String nickname) {
-        this.password = password;
+    public void update(String name, String nickname, LocalDate birth) {
+        this.name = name;
         this.nickname = nickname;
+        this.birth = birth;
     }
 }
