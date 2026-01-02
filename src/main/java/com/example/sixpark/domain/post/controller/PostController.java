@@ -5,6 +5,7 @@ import com.example.sixpark.common.response.PageResponse;
 import com.example.sixpark.domain.post.model.request.PostCreateRequest;
 import com.example.sixpark.domain.post.model.response.PostCreateResponse;
 import com.example.sixpark.domain.post.model.response.PostGetAllResponse;
+import com.example.sixpark.domain.post.model.response.PostGetOneResponse;
 import com.example.sixpark.domain.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -48,4 +49,11 @@ public class PostController {
         return ResponseEntity.ok(PageResponse.success("게시글 목록 조회 성공", posts));
     }
 
+    @GetMapping("/{postId}")
+    public ResponseEntity<ApiResponse<PostGetOneResponse>> getPost(
+            @PathVariable Long postId) {
+
+        PostGetOneResponse response = postService.getPost(postId);
+        return ResponseEntity.ok(ApiResponse.success("게시글 조회 성공", response));
+    }
 }

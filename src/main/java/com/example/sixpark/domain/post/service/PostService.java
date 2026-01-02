@@ -7,17 +7,18 @@ import com.example.sixpark.domain.post.model.dto.PostDto;
 import com.example.sixpark.domain.post.model.request.PostCreateRequest;
 import com.example.sixpark.domain.post.model.response.PostCreateResponse;
 import com.example.sixpark.domain.post.model.response.PostGetAllResponse;
+import com.example.sixpark.domain.post.model.response.PostGetOneResponse;
 import com.example.sixpark.domain.post.reository.PostRepository;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
 import com.example.sixpark.domain.showinfo.repository.ShowInfoRepository;
 import com.example.sixpark.domain.user.entity.User;
 import com.example.sixpark.domain.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +35,7 @@ public class PostService {
                 .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_USER));
 
         ShowInfo showInfo = showInfoRepository.findById(showInfoId)
-                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_TASK));
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO));
 
         Post post = new Post(user, showInfo, request.getTitle(), request.getContent());
         Post savedPost = postRepository.save(post);
@@ -44,6 +45,7 @@ public class PostService {
     }
 
     // 게시글 전체 조회 기능
+    @Transactional(readOnly = true)
     public Page<PostGetAllResponse> getPostList(Pageable pageable) {
         Page<Post> posts = postRepository.findAllByIsDeletedFalse(pageable);
 
@@ -51,5 +53,19 @@ public class PostService {
             PostDto postDto = PostDto.from(post);
             return PostGetAllResponse.from(postDto);
         });
+    }
+
+    // 게시글 상세 조회 기능
+    @Transactional(readOnly = true)
+    public PostGetOneResponse getPost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_POST));
+
+        if (post.isDeleted()) {
+            throw new CustomException(ErrorMessage.NOT_FOUND_POST);
+        }
+
+        PostDto postDto = PostDto.from(post);
+        return PostGetOneResponse.from(postDto);
     }
 }
