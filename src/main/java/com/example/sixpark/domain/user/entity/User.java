@@ -19,23 +19,27 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
-    @Column(length = 100)
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String nickname;
 
+    @Column(nullable = false)
     private LocalDate birth;
 
-    @Column(length = 50)
+    @Enumerated(EnumType.STRING) // JPA에서 enum인식 못해서 추가
+    @Column(nullable = false, length = 50)
     private UserRole role;
 
-    private Boolean isDeleted = false;
+    @Column(nullable = false)
+    private boolean isDeleted = false;
 
     public User(String email, String password, String name, String nickname, LocalDate birth, UserRole role) {
         this.email = email;
