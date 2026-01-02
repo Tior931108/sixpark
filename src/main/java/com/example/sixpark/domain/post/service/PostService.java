@@ -6,6 +6,7 @@ import com.example.sixpark.domain.post.entity.Post;
 import com.example.sixpark.domain.post.model.dto.PostDto;
 import com.example.sixpark.domain.post.model.request.PostCreateRequest;
 import com.example.sixpark.domain.post.model.response.PostCreateResponse;
+import com.example.sixpark.domain.post.model.response.PostGetAllResponse;
 import com.example.sixpark.domain.post.reository.PostRepository;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
 import com.example.sixpark.domain.showinfo.repository.ShowInfoRepository;
@@ -13,6 +14,9 @@ import com.example.sixpark.domain.user.entity.User;
 import com.example.sixpark.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,7 +33,7 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_USER));
 
-        ShowInfo showInfo = showInfoRepository.findById(showInfoId.intValue())
+        ShowInfo showInfo = showInfoRepository.findById(showInfoId)
                 .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_TASK));
 
         Post post = new Post(user, showInfo, request.getTitle(), request.getContent());
@@ -37,6 +41,15 @@ public class PostService {
 
         PostDto postDto = PostDto.from(savedPost);
         return PostCreateResponse.from(postDto);
+    }
 
+    // 게시글 전체 조회 기능
+    public Page<PostGetAllResponse> getPostList(Pageable pageable) {
+        Page<Post> posts = postRepository.findAllByIsDeletedFalse(pageable);
+
+        return posts.map(post -> {
+            PostDto postDto = PostDto.from(post);
+            return PostGetAllResponse.from(postDto);
+        });
     }
 }
