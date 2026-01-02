@@ -18,6 +18,7 @@ public enum ErrorMessage {
     NOT_CORRECT_EMAIL_FORM(HttpStatus.BAD_REQUEST, "올바른 이메일 형식이 아닙니다."),
     NOT_CORRECT_PARAMETER(HttpStatus.BAD_REQUEST, "잘못된 요청 파라미터입니다."),
     NOT_CORRECT_TASK_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 상태값입니다."),
+    SEAT_ALREADY_SELECTED(HttpStatus.BAD_REQUEST, "이미 선택된 좌석입니다."),
     // 401 Unauthorized : 로그인 필요(인증)
     NEED_TO_VALID_TOKEN(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
     NOT_MATCH_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."),
@@ -38,6 +39,7 @@ public enum ErrorMessage {
     NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
     NOT_FOUND_TEAM(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다."),
     NOT_FOUND_TEAM_MEMBER(HttpStatus.NOT_FOUND, "팀 멤버를 찾을 수 없습니다."),
+    NOT_FOUND_SEAT(HttpStatus.NOT_FOUND, "좌석을 찾을 수 없습니다."),
     // 409 Conflict : 중복 데이터
     EXIST_EMAIL(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     EXIST_USERNAME(HttpStatus.CONFLICT, "이미 사용 중인 아이디 이름입니다."),

@@ -13,18 +13,28 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Seat {
     @Id
-    private Long id;
+    private Long id; // 좌석 번호
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "show_info_id")
-    private ShowInfo showinfo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "show_time_id")
-    private ShowTime showtime;
+    private ShowTime showtime; // 공연 시간
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "show_info_id")
+    private ShowInfo showinfo; // 공연 정보
+
+    private boolean isSelected = false; // 좌석 선택 여부
 
     public Seat(ShowInfo showinfo, ShowTime showtime) {
         this.showinfo = showinfo;
         this.showtime = showtime;
+    }
+
+    /**
+     * 좌석 선택
+     * @param isSelected 선택 여부
+     */
+    public void select(boolean isSelected) {
+        this.isSelected = isSelected;
     }
 }
