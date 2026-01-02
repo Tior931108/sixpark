@@ -5,9 +5,11 @@ import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.domain.post.entity.Post;
 import com.example.sixpark.domain.post.model.dto.PostDto;
 import com.example.sixpark.domain.post.model.request.PostCreateRequest;
+import com.example.sixpark.domain.post.model.request.PostUpdateRequest;
 import com.example.sixpark.domain.post.model.response.PostCreateResponse;
 import com.example.sixpark.domain.post.model.response.PostGetAllResponse;
 import com.example.sixpark.domain.post.model.response.PostGetOneResponse;
+import com.example.sixpark.domain.post.model.response.PostUpdateResponse;
 import com.example.sixpark.domain.post.reository.PostRepository;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
 import com.example.sixpark.domain.showinfo.repository.ShowInfoRepository;
@@ -67,5 +69,25 @@ public class PostService {
 
         PostDto postDto = PostDto.from(post);
         return PostGetOneResponse.from(postDto);
+    }
+
+    @Transactional
+    public PostUpdateResponse updatePost(Long userId, Long postId, PostUpdateRequest request) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_POST));
+
+        if (post.isDeleted()) {
+            throw new CustomException(ErrorMessage.NOT_FOUND_POST);
+        }
+
+        if (!post.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorMessage.NOT_MODIFY_AUTHORIZED);
+        }
+
+        post.update(request.getTitle(), request.getContent());
+
+        PostDto postDto = PostDto.from(post);
+        return PostUpdateResponse.from(postDto);
+
     }
 }

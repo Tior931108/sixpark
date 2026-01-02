@@ -3,18 +3,23 @@ package com.example.sixpark.domain.post.controller;
 import com.example.sixpark.common.response.ApiResponse;
 import com.example.sixpark.common.response.PageResponse;
 import com.example.sixpark.domain.post.model.request.PostCreateRequest;
+import com.example.sixpark.domain.post.model.request.PostUpdateRequest;
 import com.example.sixpark.domain.post.model.response.PostCreateResponse;
 import com.example.sixpark.domain.post.model.response.PostGetAllResponse;
 import com.example.sixpark.domain.post.model.response.PostGetOneResponse;
+import com.example.sixpark.domain.post.model.response.PostUpdateResponse;
 import com.example.sixpark.domain.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.pl.REGON;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Locale;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,5 +60,15 @@ public class PostController {
 
         PostGetOneResponse response = postService.getPost(postId);
         return ResponseEntity.ok(ApiResponse.success("게시글 조회 성공", response));
+    }
+
+    @PutMapping("/{postid}")
+    public ResponseEntity<ApiResponse<PostUpdateResponse>> updatePost(
+            @RequestParam Long userId,
+            @PathVariable Long postid,
+            @RequestBody PostUpdateRequest request) {
+
+        PostUpdateResponse response = postService.updatePost(userId, postid, request);
+        return ResponseEntity.ok(ApiResponse.success("게시글이 수정되었습니다.", response));
     }
 }
