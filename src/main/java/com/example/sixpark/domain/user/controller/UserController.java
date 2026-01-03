@@ -100,4 +100,13 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("비밀번호가 확인되었습니다."));
     }
 
+    /**
+     * 회원 탈퇴 API
+     */
+    @DeleteMapping("/api/users")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@AuthenticationPrincipal AuthUser authUser) {
+        userService.deleteUser(authUser.getUserId());
+        return ResponseEntity.ok(ApiResponse.success("회원 탈퇴가 완료되었습니다."));
+    }
+
 }

@@ -119,6 +119,17 @@ public class UserService {
     }
 
     /**
+     * 회원 탈퇴 API 비지니스 로직
+     */
+    @Transactional
+    public void deleteUser(Long userId) {
+
+        User user = getUserByIdOrThrow(userId);
+
+        user.softDelete();
+    }
+
+    /**
      * 공통 사용자 조회 메서드
      */
     private User getUserByIdOrThrow(Long userId) {
