@@ -15,6 +15,6 @@ public class UserGetResponse {
     private final String role;
 
     public static UserGetResponse from(UserDto user) {
-        return new UserGetResponse(user.getId(), user.getEmail(), user.getName(), user.getNickname(), user.getRole().name());
+        return new UserGetResponse(user.getId(), user.getEmail(), user.getName(), user.getNickname(), user.getRole());
     }
 }

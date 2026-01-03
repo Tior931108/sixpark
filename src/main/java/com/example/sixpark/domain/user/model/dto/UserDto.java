@@ -19,7 +19,7 @@ public class UserDto {
     private String name;
     private String nickname;
     private LocalDate birth;
-    private UserRole role;
+    private String role;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -31,7 +31,7 @@ public class UserDto {
                 user.getName(),
                 user.getNickname(),
                 user.getBirth(),
-                user.getRole(),
+                user.getRole().name(),
                 user.getCreatedAt(),
                 user.getModifiedAt()
         );
