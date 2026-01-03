@@ -1,13 +1,18 @@
 package com.example.sixpark.domain.comment.controller;
 
 import com.example.sixpark.common.response.ApiResponse;
+import com.example.sixpark.common.response.PageResponse;
 import com.example.sixpark.domain.comment.model.request.CommentCreateRequest;
+import com.example.sixpark.domain.comment.model.request.CommentSearchRequest;
 import com.example.sixpark.domain.comment.model.request.CommentUpdateRequest;
 import com.example.sixpark.domain.comment.model.response.CommentCreateResponse;
+import com.example.sixpark.domain.comment.model.response.CommentSearchResponse;
 import com.example.sixpark.domain.comment.model.response.CommentUpdateResponse;
 import com.example.sixpark.domain.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -67,4 +72,15 @@ public class CommentController {
         commentService.deleteComment(authUser, commentId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("댓글이 삭제되었습니다"));
     }
+
+    @PostMapping("/search")
+    public ResponseEntity<ApiResponse<PageResponse<CommentSearchResponse>>> getAllComment(
+            @RequestBody CommentSearchRequest request,
+            @PageableDefault Pageable pageable
+    ) {
+        PageResponse<CommentSearchResponse> response = commentService.getAllComment(request, pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("댓글이 조회되었습니다", response));
+    }
+
+
 }

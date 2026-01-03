@@ -1,11 +1,15 @@
 package com.example.sixpark.domain.comment.service;
 
 import com.example.sixpark.common.excepion.CustomException;
+import com.example.sixpark.common.response.PageResponse;
 import com.example.sixpark.domain.comment.entity.Comment;
 import com.example.sixpark.domain.comment.model.dto.CommentDto;
+import com.example.sixpark.domain.comment.model.dto.CommentSearchQueryDto;
 import com.example.sixpark.domain.comment.model.request.CommentCreateRequest;
+import com.example.sixpark.domain.comment.model.request.CommentSearchRequest;
 import com.example.sixpark.domain.comment.model.request.CommentUpdateRequest;
 import com.example.sixpark.domain.comment.model.response.CommentCreateResponse;
+import com.example.sixpark.domain.comment.model.response.CommentSearchResponse;
 import com.example.sixpark.domain.comment.model.response.CommentUpdateResponse;
 import com.example.sixpark.domain.comment.model.response.WriterResponse;
 import com.example.sixpark.domain.comment.repository.CommentRepository;
@@ -14,6 +18,10 @@ import com.example.sixpark.domain.post.reository.PostRepository;
 import com.example.sixpark.domain.user.entity.User;
 import com.example.sixpark.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -142,5 +150,37 @@ public class CommentService {
         Comment comment = getCommentByIdOrThrow(commentId);
         matchedWriter(writer.getId(), comment.getUser().getId());
         comment.softDelete();
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<CommentSearchResponse> getAllComment(CommentSearchRequest request, Pageable pageable) {
+        Post post = getPostByIdOrThrow(request.getPostId());
+        Sort sortOption = request.getSort().equalsIgnoreCase("newest")
+                ? Sort.by("createdAt").descending() : Sort.by("createdAt").ascending();
+
+        Pageable finalPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                sortOption
+        );
+
+        Page<CommentSearchQueryDto> commentList = commentRepository.getComments(post.getId(), request.getSearchKey(), finalPageable);
+
+        Page<CommentSearchResponse> commentPageList = commentList.map(dto ->
+                new CommentSearchResponse(
+                        dto.getId(),
+                        dto.getPostId(),
+                        dto.getWriterId(),
+                        new WriterResponse(
+                                dto.getWriterId(),
+                                dto.getNickname()
+                        ),
+                        dto.getContent(),
+                        dto.getParentId(),
+                        dto.getCreatedAt(),
+                        dto.getModifiedAt()
+                )
+        );
+        return PageResponse.success("댓글 목록 조회 성공", commentPageList);
     }
 }
