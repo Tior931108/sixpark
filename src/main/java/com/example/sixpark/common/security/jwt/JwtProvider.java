@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 
 @Component
@@ -72,5 +73,9 @@ public class JwtProvider {
 
     public String getRole(String token) {
         return getClaims(token).get("role", String.class);
+    }
+
+    public Instant getExpiration(String token) {
+        return getClaims(token).getExpiration().toInstant();
     }
 }

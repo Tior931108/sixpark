@@ -25,39 +25,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * 회원가입 API 비지니스 로직
-     */
-    @Transactional
-    public UserSignupResponse signup(UserSignupRequest request) {
-
-        // 이메일 / 닉네임 중복 검사
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new CustomException(ErrorMessage.EXIST_EMAIL);
-        }
-
-        if (userRepository.existsByNickname(request.getNickname())) {
-            throw new CustomException(ErrorMessage.EXIST_NAME);
-        }
-
-        // 비밀번호 암호화
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
-
-        // User 생성 (role은 USER 고정)
-        User user = new User(
-                request.getEmail(),
-                encodedPassword,
-                request.getName(),
-                request.getNickname(),
-                request.getBirth()
-        );
-
-        userRepository.save(user);
-
-        // DTO 변환
-        return UserSignupResponse.from(UserDto.from(user));
-    }
-
-    /**
      * 내 정보조회 API 비지니스 로직
      */
     @Transactional(readOnly = true)

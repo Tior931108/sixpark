@@ -2,6 +2,7 @@ package com.example.sixpark.common.security.config;
 
 import com.example.sixpark.common.security.jwt.JwtAuthenticationFilter;
 import com.example.sixpark.common.security.jwt.JwtProvider;
+import com.example.sixpark.common.security.tokenRepository.TokenBlackListRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
+    private final TokenBlackListRepository tokenBlackListRepository;
 
     /**
      * 비밀번호 암호화 Bean
@@ -51,7 +53,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         JwtAuthenticationFilter jwtAuthenticationFilter =
-                new JwtAuthenticationFilter(jwtProvider);
+                new JwtAuthenticationFilter(jwtProvider, tokenBlackListRepository);
         http
                 // JWT 기반 인증 → CSRF 불필요
                 .csrf(csrf -> csrf.disable())

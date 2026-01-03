@@ -1,6 +1,9 @@
 package com.example.sixpark.common.security.jwt;
 
+import com.example.sixpark.common.enums.ErrorMessage;
 import com.example.sixpark.common.enums.UserRole;
+import com.example.sixpark.common.excepion.CustomException;
+import com.example.sixpark.common.security.tokenRepository.TokenBlackListRepository;
 import com.example.sixpark.common.security.userDetail.AuthUser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,6 +22,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final TokenBlackListRepository tokenBlackListRepository;
 
     @Override
     protected void doFilterInternal(
@@ -31,6 +35,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
 
         if (token != null) {
+
+            // 토큰이 블랙리스트에 있는지 확인
+            if (tokenBlackListRepository.existsByToken(token)) {
+                throw new CustomException(ErrorMessage.INVALID_TOKEN);
+            }
 
             // 토큰 검증 (만료/위조 시 예외 발생)
             jwtProvider.validateToken(token);
