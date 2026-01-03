@@ -3,10 +3,7 @@ package com.example.sixpark.domain.user.controller;
 import com.example.sixpark.common.response.ApiResponse;
 import com.example.sixpark.common.security.jwt.JwtProvider;
 import com.example.sixpark.common.security.userDetail.AuthUser;
-import com.example.sixpark.domain.user.model.request.UserLoginRequest;
-import com.example.sixpark.domain.user.model.request.UserPasswordChangeRequest;
-import com.example.sixpark.domain.user.model.request.UserSignupRequest;
-import com.example.sixpark.domain.user.model.request.UserUpdateRequest;
+import com.example.sixpark.domain.user.model.request.*;
 import com.example.sixpark.domain.user.model.response.UserGetResponse;
 import com.example.sixpark.domain.user.model.response.UserLoginResponse;
 import com.example.sixpark.domain.user.model.response.UserSignupResponse;
@@ -92,6 +89,15 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> changePassword(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid UserPasswordChangeRequest request) {
         userService.changePassword(authUser.getUserId(), request);
         return ResponseEntity.ok(ApiResponse.success("비밀번호 변경 완료"));
+    }
+
+    /**
+     * 비밀번호 확인 API
+     */
+    @PostMapping("/api/users/verify-password")
+    public ResponseEntity<ApiResponse<Void>> checkPassword(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid UserPasswordCheckRequest request) {
+        userService.checkPassword(authUser.getUserId(), request.getPassword());
+        return ResponseEntity.ok(ApiResponse.success("비밀번호가 확인되었습니다."));
     }
 
 }

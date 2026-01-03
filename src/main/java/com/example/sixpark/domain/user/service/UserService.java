@@ -106,6 +106,19 @@ public class UserService {
     }
 
     /**
+     * 비밀번호 확인 API 비지니스 로직
+     */
+    @Transactional(readOnly = true)
+    public void checkPassword(Long userId, String rawPassword) {
+
+        User user = getUserByIdOrThrow(userId);
+
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            throw new CustomException(ErrorMessage.NOT_MATCH_PASSWORD);
+        }
+    }
+
+    /**
      * 공통 사용자 조회 메서드
      */
     private User getUserByIdOrThrow(Long userId) {
