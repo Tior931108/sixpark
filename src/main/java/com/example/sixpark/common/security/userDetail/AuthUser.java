@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 public class AuthUser implements UserDetails {
 
-    private final Long userId;     // ★ 우리가 컨트롤러에서 뽑고 싶은 값
+    private final Long userId;     // 우리가 컨트롤러에서 뽑고 싶은 값
     private final String email;
     private final String password;
     private final UserRole role;

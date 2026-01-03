@@ -5,10 +5,8 @@ import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.domain.user.entity.User;
 import com.example.sixpark.domain.user.model.dto.UserDto;
 import com.example.sixpark.domain.user.model.request.UserPasswordChangeRequest;
-import com.example.sixpark.domain.user.model.request.UserSignupRequest;
 import com.example.sixpark.domain.user.model.request.UserUpdateRequest;
 import com.example.sixpark.domain.user.model.response.UserGetResponse;
-import com.example.sixpark.domain.user.model.response.UserSignupResponse;
 import com.example.sixpark.domain.user.model.response.UserUpdateResponse;
 import com.example.sixpark.domain.user.repository.UserRepository;
 

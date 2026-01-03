@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
+/**
+ * 로그아웃 API에 필요한 토큰 블랙리스트 엔티티
+ */
 @Entity
 @Getter
 @NoArgsConstructor

@@ -10,9 +10,7 @@ import com.example.sixpark.domain.user.model.request.UserRoleChangeRequest;
 import com.example.sixpark.domain.user.model.request.UserSignupRequest;
 import com.example.sixpark.domain.user.model.response.UserLoginResponse;
 import com.example.sixpark.domain.user.model.response.UserSignupResponse;
-import com.example.sixpark.domain.user.repository.UserRepository;
 import com.example.sixpark.domain.user.service.AuthUesrService;
-import com.example.sixpark.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,7 +22,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

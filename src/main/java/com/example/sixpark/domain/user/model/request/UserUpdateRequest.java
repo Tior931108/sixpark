@@ -1,6 +1,5 @@
 package com.example.sixpark.domain.user.model.request;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
