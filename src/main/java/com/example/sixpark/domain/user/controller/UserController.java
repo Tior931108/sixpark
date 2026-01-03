@@ -56,8 +56,9 @@ public class UserController {
      * 회원 탈퇴 API
      */
     @DeleteMapping("/api/users")
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@AuthenticationPrincipal AuthUser authUser) {
-        userService.deleteUser(authUser.getUserId());
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@AuthenticationPrincipal AuthUser authUser, @RequestHeader("Authorization") String authorizationHeader) {
+        String accessToken = authorizationHeader.replace("Bearer ", "");
+        userService.deleteUser(authUser.getUserId(), accessToken);
         return ResponseEntity.ok(ApiResponse.success("회원 탈퇴가 완료되었습니다."));
     }
 

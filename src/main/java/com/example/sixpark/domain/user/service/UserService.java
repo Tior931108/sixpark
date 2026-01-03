@@ -23,6 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthUesrService authService;
 
     /**
      * 내 정보조회 API 비지니스 로직
@@ -89,9 +90,12 @@ public class UserService {
      * 회원 탈퇴 API 비지니스 로직
      */
     @Transactional
-    public void deleteUser(Long userId) {
+    public void deleteUser(Long userId, String accessToken) {
 
         User user = getUserByIdOrThrow(userId);
+
+        // 자동 로그 아웃
+        authService.logout(accessToken);
 
         user.softDelete();
     }
