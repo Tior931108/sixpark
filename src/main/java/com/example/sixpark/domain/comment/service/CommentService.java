@@ -13,9 +13,9 @@ import com.example.sixpark.domain.comment.repository.CommentRepository;
 import com.example.sixpark.domain.post.entity.Post;
 import com.example.sixpark.domain.post.reository.PostRepository;
 import com.example.sixpark.domain.user.entity.User;
+import com.example.sixpark.domain.user.model.dto.UserDto;
 import com.example.sixpark.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -33,15 +33,15 @@ public class CommentService {
 
     /**
      * 댓글 생성
-     * @param authUser 로그인한 유저의 아이디
+     * @param userId 로그인한 유저의 아이디
      * @param request 댓글 생성 요청 DTO
      *                - parentId가 null이면 일반 댓글 생성
      *                - parentId가 있으면 대댓글 생성
      * @return 댓글 생성 결과
      */
     @Transactional
-    public CommentCreateResponse createComment(Long authUser, CommentCreateRequest request) {
-        User writer = getUserByIdOrThrow(authUser);
+    public CommentCreateResponse createComment(Long userId, CommentCreateRequest request) {
+        User writer = getUserByIdOrThrow(userId);
         Post post = getPostByIdOrThrow(request.getPostId());
 
         Comment parent = null;
@@ -54,7 +54,7 @@ public class CommentService {
 
         CommentDto dto = CommentDto.from(comment);
 
-        return CommentCreateResponse.from(dto, WriterResponse.from(writer));
+        return CommentCreateResponse.from(dto, WriterResponse.from(UserDto.from(writer)));
     }
 
     /**
@@ -75,53 +75,53 @@ public class CommentService {
 
     /**
      * 유저 아이디에 해당하는 유저 조회 없으면 예외 발생
-     * @param id 유저 아이디
+     * @param userId 유저 아이디
      * @return 조회된 유저 엔티티
      */
-    private User getUserByIdOrThrow(Long id) {
-        return userRepository.findById(id).orElseThrow(
+    private User getUserByIdOrThrow(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(NOT_FOUND_USER)
         );
     }
 
     /**
      * 게시글 아이디에 해당하는 게시글 조회 없으면 예외 발생
-     * @param id 게시글 아이디
+     * @param postId 게시글 아이디
      * @return 조회된 게시글 엔티티
      */
-    private Post getPostByIdOrThrow(Long id) {
-        return postRepository.findById(id).orElseThrow(
+    private Post getPostByIdOrThrow(Long postId) {
+        return postRepository.findById(postId).orElseThrow(
                 () -> new CustomException(NOT_FOUND_TASK) // 나중에 상수를 NOT_FOUND_POST로 변경
         );
     }
 
     /**
      * 댓글 아이디에 해당하는 댓글 조회 없으면 예외 발생
-     * @param id 댓글 아이디
+     * @param commentId 댓글 아이디
      * @return 조회된 댓글 엔티티
      */
-    private Comment getCommentByIdOrThrow(Long id) {
-        return commentRepository.findById(id).orElseThrow(
+    private Comment getCommentByIdOrThrow(Long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(
                 () -> new CustomException(NOT_FOUND_COMMENT)
         );
     }
 
     /**
      * 댓글 수정
-     * @param authUser 로그인한 유저의 아이디
+     * @param userId 로그인한 유저의 아이디
      * @param commentId 댓글 아이디
      * @param request 댓글 수정 요청 DTO
      * @return 댓글 수정 결과
      */
     @Transactional
-    public CommentUpdateResponse updateComment(Long authUser, Long commentId, CommentUpdateRequest request) {
-        User writer = getUserByIdOrThrow(authUser);
+    public CommentUpdateResponse updateComment(Long userId, Long commentId, CommentUpdateRequest request) {
+        User writer = getUserByIdOrThrow(userId);
         Comment comment = getCommentByIdOrThrow(commentId);
         matchedWriter(writer.getId(), comment.getUser().getId());
         comment.update(request.getContent());
         commentRepository.save(comment);
         CommentDto dto = CommentDto.from(comment);
-        return CommentUpdateResponse.from(dto, WriterResponse.from(writer));
+        return CommentUpdateResponse.from(dto, WriterResponse.from(UserDto.from(writer)));
     }
 
     /**
@@ -137,12 +137,12 @@ public class CommentService {
 
     /**
      * 댓글 삭제
-     * @param authUser 유저 아이디
+     * @param userId 유저 아이디
      * @param commentId 댓글 아이디
      */
     @Transactional
-    public void deleteComment(Long authUser, Long commentId) {
-        User writer = getUserByIdOrThrow(authUser);
+    public void deleteComment(Long userId, Long commentId) {
+        User writer = getUserByIdOrThrow(userId);
         Comment comment = getCommentByIdOrThrow(commentId);
         matchedWriter(writer.getId(), comment.getUser().getId());
         comment.softDelete();
