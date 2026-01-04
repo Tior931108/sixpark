@@ -1,7 +1,7 @@
 package com.example.sixpark.domain.seat.entity;
 
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
-import com.example.sixpark.domain.showtime.entity.ShowTime;
+import com.example.sixpark.domain.showplace.entity.ShowPlace;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -21,9 +21,9 @@ public class Seat {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "show_time_id")
-    private ShowTime showtime;
+    private ShowPlace showtime;
 
-    public Seat(ShowInfo showinfo, ShowTime showtime) {
+    public Seat(ShowInfo showinfo, ShowPlace showtime) {
         this.showinfo = showinfo;
         this.showtime = showtime;
     }

@@ -4,5 +4,11 @@ package com.example.sixpark.domain.genre.repository;
 import com.example.sixpark.domain.genre.entity.Genre;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface GenreRepository extends JpaRepository<Genre, Integer> {
+import java.util.Optional;
+
+public interface GenreRepository extends JpaRepository<Genre, Long> {
+
+    Optional<Genre> findByGenrenm(String genrenm);
+
+    boolean existsByGenrenm(String genrenm);
 }
