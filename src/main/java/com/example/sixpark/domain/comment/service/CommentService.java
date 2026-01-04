@@ -2,16 +2,14 @@ package com.example.sixpark.domain.comment.service;
 
 import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.common.response.PageResponse;
+import com.example.sixpark.common.response.SliceResponse;
 import com.example.sixpark.domain.comment.entity.Comment;
 import com.example.sixpark.domain.comment.model.dto.CommentDto;
-import com.example.sixpark.domain.comment.model.dto.CommentSearchQueryDto;
+import com.example.sixpark.domain.comment.model.dto.CommentGetQueryDto;
 import com.example.sixpark.domain.comment.model.request.CommentCreateRequest;
 import com.example.sixpark.domain.comment.model.request.CommentSearchRequest;
 import com.example.sixpark.domain.comment.model.request.CommentUpdateRequest;
-import com.example.sixpark.domain.comment.model.response.CommentCreateResponse;
-import com.example.sixpark.domain.comment.model.response.CommentSearchResponse;
-import com.example.sixpark.domain.comment.model.response.CommentUpdateResponse;
-import com.example.sixpark.domain.comment.model.response.WriterResponse;
+import com.example.sixpark.domain.comment.model.response.*;
 import com.example.sixpark.domain.comment.repository.CommentRepository;
 import com.example.sixpark.domain.post.entity.Post;
 import com.example.sixpark.domain.post.reository.PostRepository;
@@ -19,9 +17,8 @@ import com.example.sixpark.domain.user.entity.User;
 import com.example.sixpark.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -152,19 +149,17 @@ public class CommentService {
         comment.softDelete();
     }
 
+    /**
+     * 댓글 검색
+     * @param request 댓글 검색 요청 dto
+     * @param pageable 페이징
+     * @return 댓글 검색 결과
+     */
     @Transactional(readOnly = true)
-    public PageResponse<CommentSearchResponse> getAllComment(CommentSearchRequest request, Pageable pageable) {
+    public PageResponse<CommentSearchResponse> getSearchComment(CommentSearchRequest request, Pageable pageable) {
         Post post = getPostByIdOrThrow(request.getPostId());
-        Sort sortOption = request.getSort().equalsIgnoreCase("newest")
-                ? Sort.by("createdAt").descending() : Sort.by("createdAt").ascending();
 
-        Pageable finalPageable = PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                sortOption
-        );
-
-        Page<CommentSearchQueryDto> commentList = commentRepository.getComments(post.getId(), request.getSearchKey(), finalPageable);
+        Page<CommentGetQueryDto> commentList = commentRepository.getSearchComments(post.getId(), request.getSearchKey(), pageable);
 
         Page<CommentSearchResponse> commentPageList = commentList.map(dto ->
                 new CommentSearchResponse(
@@ -181,6 +176,66 @@ public class CommentService {
                         dto.getModifiedAt()
                 )
         );
-        return PageResponse.success("댓글 목록 조회 성공", commentPageList);
+        return PageResponse.success("댓글 검색 조회 성공", commentPageList);
+    }
+
+    /**
+     * 부모 댓글 조회
+     * @param postId 게시글 id
+     * @param pageable 페이징(slice)
+     * @return 부모 조회 결과
+     */
+    @Transactional(readOnly = true)
+    public SliceResponse<CommentResponse> getParentComment(Long postId, Pageable pageable) {
+        Post post = getPostByIdOrThrow(postId);
+        Slice<CommentGetQueryDto> parentCommentList = commentRepository.getParentComment(post.getId(), pageable);
+
+        Slice<CommentResponse> parentCommentSliceList = parentCommentList.map(dto ->
+                new CommentResponse(
+                        dto.getId(),
+                        dto.getPostId(),
+                        dto.getWriterId(),
+                        new WriterResponse(
+                                dto.getWriterId(),
+                                dto.getNickname()
+                        ),
+                        dto.getContent(),
+                        dto.getParentId(),
+                        dto.getCreatedAt(),
+                        dto.getModifiedAt()
+                )
+        );
+        return SliceResponse.success("댓글 조회 성공", parentCommentSliceList);
+    }
+
+    /**
+     * 자식 댓글 조회
+     * @param parentCommentId 부모 댓글 id
+     * @param postId 게시글 id
+     * @param pageable 페이징(slice)
+     * @return 자식 조회 결과
+     */
+    @Transactional(readOnly = true)
+    public SliceResponse<CommentResponse> getChildComment(Long parentCommentId, Long postId, Pageable pageable) {
+        Post post = getPostByIdOrThrow(postId);
+        getCommentByIdOrThrow(parentCommentId);
+
+        Slice<CommentGetQueryDto> childCommentList = commentRepository.getChildComment(parentCommentId, post.getId(), pageable);
+        Slice<CommentResponse> childCommentSliceList = childCommentList.map(dto ->
+                new CommentResponse(
+                        dto.getId(),
+                        dto.getPostId(),
+                        dto.getWriterId(),
+                        new WriterResponse(
+                                dto.getWriterId(),
+                                dto.getNickname()
+                        ),
+                        dto.getContent(),
+                        dto.getParentId(),
+                        dto.getCreatedAt(),
+                        dto.getModifiedAt()
+                )
+        );
+        return SliceResponse.success("댓글 조회 성공", childCommentSliceList);
     }
 }
