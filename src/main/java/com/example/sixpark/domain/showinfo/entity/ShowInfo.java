@@ -31,8 +31,8 @@ public class ShowInfo {
     @Column(nullable = false)
     private String prfnm; // 공연 제목
 
-    @Column(nullable = false, length = 500)
-    private List<String> prfcast; // 공연 출연진
+    @Column(length = 500)
+    private String prfcast; // 공연 출연진
 
     @Column(nullable = false)
     private LocalDate prfpdfrom; // 공연 시작 날짜
@@ -44,12 +44,12 @@ public class ShowInfo {
     private String poster; // 포스터 이미지 링크
 
     @Column(nullable = false)
-    private Integer pcseguidance; // 가격
+    private Integer pcseguidance; // 좌석 가격
 
     @Column(nullable = false, length = 10)
     private boolean isDeleted = false; // 논리 삭제 여부
 
-    public ShowInfo(Genre genre, String mt20id, String prfnm, List<String> prfcast, LocalDate prfpdfrom, LocalDate prfpdto, String poster, Integer pcseguidance) {
+    public ShowInfo(Genre genre, String mt20id, String prfnm, String prfcast, LocalDate prfpdfrom, LocalDate prfpdto, String poster, Integer pcseguidance) {
         this.genre = genre;
         this.mt20id = mt20id;
         this.prfnm = prfnm;
@@ -60,7 +60,7 @@ public class ShowInfo {
         this.pcseguidance = pcseguidance;
     }
 
-    public static ShowInfo create(Genre genre, String mt20id, String prfnm, List<String> prfcast,
+    public static ShowInfo create(Genre genre, String mt20id, String prfnm, String prfcast,
                                   LocalDate prfpdfrom, LocalDate prfpdto,
                                   String poster, Integer pcseguidance) {
         ShowInfo showInfo = new ShowInfo();

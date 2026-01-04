@@ -2,6 +2,7 @@ package com.example.sixpark.domain.showinfo.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.Data;
 
 /**
@@ -11,30 +12,30 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class KopisShowInfoDto {
 
-    @JsonProperty("mt20id")
-    private String mt20id;
+    @JacksonXmlProperty(localName = "mt20id")
+    private String mt20id; // KOPIS 공연 ID
 
-    @JsonProperty("prfnm")
-    private String prfnm;
+    @JacksonXmlProperty(localName = "prfnm")
+    private String prfnm; // 공연 제목
 
-    @JsonProperty("prfpdfrom")
-    private String prfpdfrom;
+    @JacksonXmlProperty(localName = "prfpdfrom")
+    private String prfpdfrom; // 시작 날짜
 
-    @JsonProperty("prfpdto")
-    private String prfpdto;
+    @JacksonXmlProperty(localName = "prfpdto")
+    private String prfpdto; // 종료 날짜
 
-    @JsonProperty("fcltynm")
-    private String fcltynm;
+    @JacksonXmlProperty(localName = "fcltynm")
+    private String fcltynm; // 시설명
 
-    @JsonProperty("poster")
-    private String poster;
+    @JacksonXmlProperty(localName = "poster")
+    private String poster; // 이미지 주소
 
-    @JsonProperty("area")
-    private String area;
+    @JacksonXmlProperty(localName = "area")
+    private String area; // 지역
 
-    @JsonProperty("genrenm")
-    private String genrenm;
+    @JacksonXmlProperty(localName = "genrenm")
+    private String genrenm; // 장르명
 
-    @JsonProperty("prfstate")
-    private String prfstate;
+    @JacksonXmlProperty(localName = "prfstate")
+    private String prfstate; // 공연 진행상황 ex) 공연예정, 공연중, 공연완료
 }

@@ -15,7 +15,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    defer-datasource-initialization: true
+        show_sql: true
+        default_batch_fetch_size: 100
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
 
 jwt:
   secret:
@@ -25,4 +28,10 @@ kopis:
   api:
     key: ${KOPIS_API_KEY}
     url: ${KOPIS_API_URL}
+
+logging:
+  level:
+    com.example.sixpark: DEBUG  # DEBUG로 변경하여 상세 로그 확인
+    org.springframework.web: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 

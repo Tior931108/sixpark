@@ -7,8 +7,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalTime;
-
 @Entity
 @Getter
 @Table(name = "show_times")
@@ -20,37 +18,42 @@ public class ShowTime extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "show_info_id")
+    @JoinColumn(name = "show_info_id", unique = true) // 공연정보 - 공연시간정보 1:1 보장
     private ShowInfo showInfo; // 공연정보 ID
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = 100)
     private String area; // 지역
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = 500)
     private String fcltynm; // 시설 이름
 
     @Column(nullable = false)
     private Long seatscale; // 좌석 수
 
     @Column(nullable = false)
-    private LocalTime time; // 공연 시간
+    private String dtguidance; // 공연 시작시간 ex) 금요일(18:00,20:30), 토요일 ~ 일요일(17:00,19:30)
 
-    public ShowTime(ShowInfo showInfo, String area, String fcltynm, Long seatscale, LocalTime time) {
+    @Column(nullable = false)
+    private String prfruntime; // 공연 총시간 ex) 1시간 30분
+
+    public ShowTime(ShowInfo showInfo, String area, String fcltynm, Long seatscale, String dtguidance, String prfruntime) {
         this.showInfo = showInfo;
         this.area = area;
         this.fcltynm = fcltynm;
         this.seatscale = seatscale;
-        this.time = time;
+        this.dtguidance = dtguidance;
+        this.prfruntime = prfruntime;
     }
 
     public static ShowTime create(ShowInfo showInfo, String area, String fcltynm,
-                                  Long seatscale, LocalTime time) {
+                                  Long seatscale, String dtguidance, String prfruntime) {
         ShowTime showTime = new ShowTime();
         showTime.showInfo = showInfo;
         showTime.area = area;
         showTime.fcltynm = fcltynm;
         showTime.seatscale = seatscale;
-        showTime.time = time;
+        showTime.dtguidance = dtguidance;
+        showTime.prfruntime = prfruntime;
         return showTime;
     }
 

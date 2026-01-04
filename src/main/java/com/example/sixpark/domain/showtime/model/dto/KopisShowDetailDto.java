@@ -1,54 +1,55 @@
 package com.example.sixpark.domain.showtime.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.Data;
 
-import java.util.List;
-
+/**
+ * KOPIS 공연 상세 목록 xml > DTO
+ */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class KopisShowDetailDto {
 
-    @JsonProperty("mt20id")
-    private String mt20id;
+    @JacksonXmlProperty(localName = "mt20id")
+    private String mt20id; // KOPIS 공연 고유 ID
 
-    @JsonProperty("prfnm")
-    private String prfnm;
+    @JacksonXmlProperty(localName = "prfnm")
+    private String prfnm; // 공연 제목
 
-    @JsonProperty("prfpdfrom")
-    private String prfpdfrom;
+    @JacksonXmlProperty(localName = "prfpdfrom")
+    private String prfpdfrom; // 시작 날짜
 
-    @JsonProperty("prfpdto")
-    private String prfpdto;
+    @JacksonXmlProperty(localName = "prfpdto")
+    private String prfpdto; // 종료 날짜
 
-    @JsonProperty("fcltynm")
-    private String fcltynm;
+    @JacksonXmlProperty(localName = "fcltynm")
+    private String fcltynm; // 시설명
 
-    @JsonProperty("prfcast")
-    private List<String> prfcast;
+    @JacksonXmlProperty(localName = "prfcast")
+    private String prfcast; // 출연진
 
-    @JsonProperty("prfcrew")
-    private String prfcrew;
+    @JacksonXmlProperty(localName = "prfcrew")
+    private String prfcrew; // 연출진
 
-    @JsonProperty("prfruntime")
-    private String prfruntime;
+    @JacksonXmlProperty(localName = "prfruntime")
+    private String prfruntime; // 공연 총시간
 
-    @JsonProperty("prfage")
-    private String prfage;
+    @JacksonXmlProperty(localName = "prfage")
+    private String prfage; // 관람 나이(등급) ex) 만 15세 이용가, 전체 이용가
 
-    @JsonProperty("pcseguidance")
-    private String pcseguidance;
+    @JacksonXmlProperty(localName = "pcseguidance")
+    private String pcseguidance; // 좌석 가격
 
-    @JsonProperty("poster")
-    private String poster;
+    @JacksonXmlProperty(localName = "poster")
+    private String poster; // 이미지 주소
 
-    @JsonProperty("area")
-    private String area;
+    @JacksonXmlProperty(localName = "area")
+    private String area; // 지역
 
-    @JsonProperty("dtguidance")
-    private String dtguidance;
+    @JacksonXmlProperty(localName = "dtguidance")
+    private String dtguidance; // 일정 ex) 금요일(18:00,20:30), 토요일 ~ 일요일(17:00,19:30)
 
-    @JsonProperty("mt10id")
-    private String mt10id;
+    @JacksonXmlProperty(localName = "mt10id")
+    private String mt10id; // KOPIS 시설 ID
 }
