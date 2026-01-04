@@ -1,9 +1,11 @@
 package com.example.sixpark.domain.comment.repository;
 
+import com.example.sixpark.domain.comment.entity.QComment;
 import com.example.sixpark.domain.comment.model.dto.CommentGetQueryDto;
 import com.example.sixpark.domain.comment.model.dto.QCommentGetQueryDto;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -20,7 +22,7 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<CommentGetQueryDto> getSearchComments(Long postId, String searchKey, Pageable pageable) {
+    public Slice<CommentGetQueryDto> getSearchComments(Long postId, String searchKey, Pageable pageable) {
         List<CommentGetQueryDto> result = queryFactory
                 .select(new QCommentGetQueryDto(
                         comment.id,
@@ -37,27 +39,15 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
                 .leftJoin(comment.user, user)
                 .where(
                         contentCondition(searchKey),
-                        postIdCondition(postId)
+                        postIdCondition(postId),
+                        comment.parentComment.id.isNull()
                 )
-                .orderBy(getOrderSpecifiers(pageable.getSort()))
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageable.getPageSize() + 1)
+                .orderBy(getOrderSpecifiers(pageable.getSort()))
                 .fetch();
 
-
-        Long total = queryFactory
-                .select(comment.id.countDistinct())
-                .from(comment)
-                .where(
-                        contentCondition(searchKey),
-                        postIdCondition(postId)
-                )
-                .fetchOne();
-
-        if(total == null) {
-            total = 0L;
-        }
-        return new PageImpl<>(result, pageable, total);
+        return checkEndPage(result, pageable);
     }
 
     @Override
@@ -119,8 +109,6 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
 
     private Slice<CommentGetQueryDto> checkEndPage(List<CommentGetQueryDto> commentList, Pageable pageable) {
         boolean hasNext = false;
-        System.out.println("result 의 size"+commentList.size());
-        System.out.println("pageable 의 getPageSize()"+pageable.getPageSize());
         if(commentList.size()> pageable.getPageSize()){
             hasNext = true;
             commentList.remove(pageable.getPageSize());
@@ -129,7 +117,23 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
     }
 
     private BooleanExpression contentCondition(String searchKey) {
-        return searchKey != null ? comment.content.contains(searchKey) : null;
+        if (searchKey == null || searchKey.isBlank()) {
+            return null;
+        }
+
+        QComment childComment = new QComment("childComment");
+
+        return comment.content.contains(searchKey)
+                .or(
+                        JPAExpressions
+                                .selectOne()
+                                .from(childComment)
+                                .where(
+                                        childComment.parentComment.id.eq(comment.id),
+                                        childComment.content.contains(searchKey)
+                                        )
+                                .exists()
+                );
     }
 
     private OrderSpecifier<?>[] getOrderSpecifiers(Sort sort) {

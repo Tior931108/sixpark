@@ -1,7 +1,6 @@
 package com.example.sixpark.domain.comment.service;
 
 import com.example.sixpark.common.excepion.CustomException;
-import com.example.sixpark.common.response.PageResponse;
 import com.example.sixpark.common.response.SliceResponse;
 import com.example.sixpark.domain.comment.entity.Comment;
 import com.example.sixpark.domain.comment.model.dto.CommentDto;
@@ -156,12 +155,12 @@ public class CommentService {
      * @return 댓글 검색 결과
      */
     @Transactional(readOnly = true)
-    public PageResponse<CommentSearchResponse> getSearchComment(CommentSearchRequest request, Pageable pageable) {
+    public SliceResponse<CommentSearchResponse> getSearchComment(CommentSearchRequest request, Pageable pageable) {
         Post post = getPostByIdOrThrow(request.getPostId());
 
-        Page<CommentGetQueryDto> commentList = commentRepository.getSearchComments(post.getId(), request.getSearchKey(), pageable);
+        Slice<CommentGetQueryDto> commentList = commentRepository.getSearchComments(post.getId(), request.getSearchKey(), pageable);
 
-        Page<CommentSearchResponse> commentPageList = commentList.map(dto ->
+        Slice<CommentSearchResponse> commentPageList = commentList.map(dto ->
                 new CommentSearchResponse(
                         dto.getId(),
                         dto.getPostId(),
@@ -176,7 +175,7 @@ public class CommentService {
                         dto.getModifiedAt()
                 )
         );
-        return PageResponse.success("댓글 검색 조회 성공", commentPageList);
+        return SliceResponse.success("댓글 검색 조회 성공", commentPageList);
     }
 
     /**
@@ -221,6 +220,7 @@ public class CommentService {
         getCommentByIdOrThrow(parentCommentId);
 
         Slice<CommentGetQueryDto> childCommentList = commentRepository.getChildComment(parentCommentId, post.getId(), pageable);
+
         Slice<CommentResponse> childCommentSliceList = childCommentList.map(dto ->
                 new CommentResponse(
                         dto.getId(),

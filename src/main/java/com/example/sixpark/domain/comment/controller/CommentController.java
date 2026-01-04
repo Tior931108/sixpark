@@ -83,7 +83,7 @@ public class CommentController {
      * @return 댓글 검색 결과
      */
     @GetMapping("/search")
-    public ResponseEntity<PageResponse<CommentSearchResponse>> getSearchComment(
+    public ResponseEntity<SliceResponse<CommentSearchResponse>> getSearchComment(
             @ModelAttribute CommentSearchRequest request,
             @PageableDefault(
                     size = 10,
@@ -91,7 +91,7 @@ public class CommentController {
                     direction = Sort.Direction.DESC
             ) Pageable pageable
     ) {
-        PageResponse<CommentSearchResponse> response = commentService.getSearchComment(request, pageable);
+        SliceResponse<CommentSearchResponse> response = commentService.getSearchComment(request, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
