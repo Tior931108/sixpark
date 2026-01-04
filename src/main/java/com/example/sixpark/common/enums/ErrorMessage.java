@@ -23,6 +23,7 @@ public enum ErrorMessage {
     NEED_TO_VALID_TOKEN(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
     NOT_MATCH_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."),
     NOT_MATCH_PASSWORD(HttpStatus.UNAUTHORIZED, "비밀번호가 올바르지 않습니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
     // 403 Forbidden : 권한 거부(인가)
     ONLY_OWNER_ACCESS(HttpStatus.FORBIDDEN, "권한이 없습니다."),
     NOT_MODIFY_AUTHORIZED(HttpStatus.FORBIDDEN, "수정 권한이 없습니다."),
