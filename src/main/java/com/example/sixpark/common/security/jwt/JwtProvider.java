@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 @Component
@@ -75,7 +77,10 @@ public class JwtProvider {
         return getClaims(token).get("role", String.class);
     }
 
-    public Instant getExpiration(String token) {
-        return getClaims(token).getExpiration().toInstant();
+    public LocalDateTime getExpiration(String token) {
+        return getClaims(token).getExpiration()          // Date
+                .toInstant()              // Instant
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
     }
 }

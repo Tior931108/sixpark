@@ -3,8 +3,7 @@ package com.example.sixpark.common.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 /**
  * 로그아웃 API에 필요한 토큰 블랙리스트 엔티티
@@ -12,6 +11,7 @@ import java.time.Instant;
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(name = "token_blackList")
 public class TokenBlackList {
 
     @Id
@@ -22,9 +22,9 @@ public class TokenBlackList {
     private String token;
 
     @Column(nullable = false)
-    private Instant expiredAt;
+    private LocalDateTime expiredAt;
 
-    public TokenBlackList(String token, Instant expiredAt) {
+    public TokenBlackList(String token, LocalDateTime expiredAt) {
         this.token = token;
         this.expiredAt = expiredAt;
     }
