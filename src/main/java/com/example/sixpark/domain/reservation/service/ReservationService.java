@@ -1,4 +1,46 @@
 package com.example.sixpark.domain.reservation.service;
 
+import com.example.sixpark.common.enums.ErrorMessage;
+import com.example.sixpark.common.excepion.CustomException;
+import com.example.sixpark.domain.reservation.entity.Reservation;
+import com.example.sixpark.domain.reservation.medel.dto.ReservationDto;
+import com.example.sixpark.domain.reservation.medel.request.ReservationCreateRequest;
+import com.example.sixpark.domain.reservation.medel.response.ReservationCreateResponse;
+import com.example.sixpark.domain.reservation.repository.ReservationRepository;
+import com.example.sixpark.domain.seat.entity.Seat;
+import com.example.sixpark.domain.seat.repository.SeatRepository;
+import com.example.sixpark.domain.user.entity.User;
+import com.example.sixpark.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
 public class ReservationService {
+
+    private final ReservationRepository reservationRepository;
+    private final UserRepository userRepository;
+    private final SeatRepository seatRepository;
+
+    /**
+     * 예매 생성
+     * @param userId 로그인한 유저
+     * @param request 예매 생성 요청 DTO
+     * @return 예매 생성 응답 DTO
+     */
+    public ReservationCreateResponse createReservation(Long userId, ReservationCreateRequest request) {
+        // 유저 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_USER));
+        // 좌석 조회
+        Seat seat = seatRepository.findById(request.getSeatId())
+                .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_USER));
+
+        Reservation reservation = new Reservation(user, seat);
+        reservationRepository.save(reservation);
+
+        return ReservationCreateResponse.from(ReservationDto.from(reservation));
+    }
 }
