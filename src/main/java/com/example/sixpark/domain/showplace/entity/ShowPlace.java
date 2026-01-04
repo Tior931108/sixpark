@@ -1,4 +1,4 @@
-package com.example.sixpark.domain.showtime.entity;
+package com.example.sixpark.domain.showplace.entity;
 
 import com.example.sixpark.common.entity.BaseEntity;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "show_times")
+@Table(name = "show_places")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ShowTime extends BaseEntity {
+public class ShowPlace extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +36,7 @@ public class ShowTime extends BaseEntity {
     @Column(nullable = false)
     private String prfruntime; // 공연 총시간 ex) 1시간 30분
 
-    public ShowTime(ShowInfo showInfo, String area, String fcltynm, Long seatscale, String dtguidance, String prfruntime) {
+    public ShowPlace(ShowInfo showInfo, String area, String fcltynm, Long seatscale, String dtguidance, String prfruntime) {
         this.showInfo = showInfo;
         this.area = area;
         this.fcltynm = fcltynm;
@@ -45,16 +45,16 @@ public class ShowTime extends BaseEntity {
         this.prfruntime = prfruntime;
     }
 
-    public static ShowTime create(ShowInfo showInfo, String area, String fcltynm,
-                                  Long seatscale, String dtguidance, String prfruntime) {
-        ShowTime showTime = new ShowTime();
-        showTime.showInfo = showInfo;
-        showTime.area = area;
-        showTime.fcltynm = fcltynm;
-        showTime.seatscale = seatscale;
-        showTime.dtguidance = dtguidance;
-        showTime.prfruntime = prfruntime;
-        return showTime;
+    public static ShowPlace create(ShowInfo showInfo, String area, String fcltynm,
+                                   Long seatscale, String dtguidance, String prfruntime) {
+        ShowPlace showPlace = new ShowPlace();
+        showPlace.showInfo = showInfo;
+        showPlace.area = area;
+        showPlace.fcltynm = fcltynm;
+        showPlace.seatscale = seatscale;
+        showPlace.dtguidance = dtguidance;
+        showPlace.prfruntime = prfruntime;
+        return showPlace;
     }
 
 }

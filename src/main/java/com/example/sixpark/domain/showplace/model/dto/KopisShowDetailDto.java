@@ -1,4 +1,4 @@
-package com.example.sixpark.domain.showtime.model.dto;
+package com.example.sixpark.domain.showplace.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;

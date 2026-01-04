@@ -5,9 +5,9 @@ import com.example.sixpark.domain.genre.service.GenreService;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
 import com.example.sixpark.domain.showinfo.model.dto.KopisShowInfoDto;
 import com.example.sixpark.domain.showinfo.repository.ShowInfoRepository;
-import com.example.sixpark.domain.showtime.entity.ShowTime;
-import com.example.sixpark.domain.showtime.model.dto.KopisShowDetailDto;
-import com.example.sixpark.domain.showtime.repository.ShowTimeRepository;
+import com.example.sixpark.domain.showplace.entity.ShowPlace;
+import com.example.sixpark.domain.showplace.model.dto.KopisShowDetailDto;
+import com.example.sixpark.domain.showplace.repository.ShowPlaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 public class ShowInfoService {
 
     private final ShowInfoRepository showInfoRepository;
-    private final ShowTimeRepository showTimeRepository;
+    private final ShowPlaceRepository showPlaceRepository;
     private final GenreService genreService;
     private final KopisApiService kopisApiService;
 
@@ -86,13 +86,13 @@ public class ShowInfoService {
                     ShowInfo savedShowInfo = showInfoRepository.save(showInfo);
                     log.info("→ ShowInfo 저장 완료 (ID: {})", savedShowInfo.getId());
 
-                    // ShowTime 생성 및 저장 (1개만)
-                    ShowTime showTime = createShowTime(detailDto, dto, savedShowInfo);
-                    if (showTime != null) {
-                        showTimeRepository.save(showTime);
-                        log.info("→ ShowTime 저장 완료");
+                    // ShowPlace 생성 및 저장 (1개만)
+                    ShowPlace showPlace = createShowPlace(detailDto, dto, savedShowInfo);
+                    if (showPlace != null) {
+                        showPlaceRepository.save(showPlace);
+                        log.info("→ ShowPlace 저장 완료");
                     } else {
-                        log.warn("→ ShowTime 정보가 없습니다.");
+                        log.warn("→ ShowPlace 정보가 없습니다.");
                     }
 
                     successCount++;
@@ -288,11 +288,11 @@ public class ShowInfoService {
 //    }
 
     /**
-     * ShowTime 생성 (파싱 없이 원본 그대로 저장)
+     * ShowPlace 생성 (파싱 없이 원본 그대로 저장)
      */
-    private ShowTime createShowTime(KopisShowDetailDto detailDto,
-                                    KopisShowInfoDto dto,
-                                    ShowInfo showInfo) {
+    private ShowPlace createShowPlace(KopisShowDetailDto detailDto,
+                                     KopisShowInfoDto dto,
+                                     ShowInfo showInfo) {
         // dtguidance 공연 시간 확인
         if (detailDto.getDtguidance() == null || detailDto.getDtguidance().isEmpty()) {
             log.debug("→ dtguidance 정보 없음");
@@ -305,7 +305,7 @@ public class ShowInfoService {
                 : "정보 없음";
 
         // ShowTime 생성 (원본 그대로 저장)
-        ShowTime showTime = ShowTime.create(
+        ShowPlace showPlace = ShowPlace.create(
                 showInfo,
                 dto.getArea() != null ? dto.getArea() : "미정",
                 dto.getFcltynm() != null ? dto.getFcltynm() : "미정",
@@ -317,7 +317,7 @@ public class ShowInfoService {
         log.debug("→ ShowTime 생성: dtguidance={}, prfruntime={}",
                 detailDto.getDtguidance(), prfruntime);
 
-        return showTime;
+        return showPlace;
     }
 
     /**

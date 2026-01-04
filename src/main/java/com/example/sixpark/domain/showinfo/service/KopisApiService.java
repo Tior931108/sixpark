@@ -2,8 +2,8 @@ package com.example.sixpark.domain.showinfo.service;
 
 import com.example.sixpark.domain.showinfo.model.dto.KopisShowInfoDto;
 import com.example.sixpark.domain.showinfo.model.response.KopisShowListResponse;
-import com.example.sixpark.domain.showtime.model.dto.KopisShowDetailDto;
-import com.example.sixpark.domain.showtime.model.response.KopisShowDetailResponse;
+import com.example.sixpark.domain.showplace.model.dto.KopisShowDetailDto;
+import com.example.sixpark.domain.showplace.model.response.KopisShowDetailResponse;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

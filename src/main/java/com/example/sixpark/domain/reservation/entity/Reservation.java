@@ -3,7 +3,7 @@ package com.example.sixpark.domain.reservation.entity;
 import com.example.sixpark.common.entity.BaseEntity;
 import com.example.sixpark.domain.seat.entity.Seat;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
-import com.example.sixpark.domain.showtime.entity.ShowTime;
+import com.example.sixpark.domain.showplace.entity.ShowPlace;
 import com.example.sixpark.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -29,7 +29,7 @@ public class Reservation extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "show_time_id")
-    private ShowTime showtime;
+    private ShowPlace showtime;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "seat_id")
@@ -37,7 +37,7 @@ public class Reservation extends BaseEntity {
 
     private int count = 1; // 1인 1티켓
 
-    public Reservation(User user, ShowInfo showinfo, ShowTime showtime, Seat seat) {
+    public Reservation(User user, ShowInfo showinfo, ShowPlace showtime, Seat seat) {
         this.user = user;
         this.showinfo = showinfo;
         this.showtime = showtime;
