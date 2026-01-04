@@ -7,15 +7,12 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class SelectSeatResponse {
-    private final Long seatId;
-    private final Long showtimeId;
-    private final Long showInfoId;
 
-    public static SelectSeatResponse from(SeatDto seatDto) {
+    private final Long seatId;
+
+    public static SelectSeatResponse from(SeatDto dto) {
         return new SelectSeatResponse(
-                seatDto.getId(),
-                seatDto.getShowtime().getId(),
-                seatDto.getShowinfo().getId()
+                dto.getId()
         );
     }
 }

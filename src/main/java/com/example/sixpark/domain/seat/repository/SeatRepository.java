@@ -13,10 +13,7 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 
     // 비관적 락
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT s FROM Seat s WHERE s.id = :seatId AND s.showtime.id = :showtimeId")
-    Optional<Seat> findByIdForLOCK(@Param("seatId") Long seatId, @Param("showtimeId") Long showtimeId);
-
-    @Query("SELECT s FROM Seat s WHERE s.id = :seatId AND s.showtime.id = :showtimeId")
-    Optional<Seat> findBySeatIdAndShowtimeId(Long seatId, Long showtimeId);
+    @Query("SELECT s FROM Seat s WHERE s.id = :seatId")
+    Optional<Seat> findByIdForLOCK(@Param("seatId") Long seatId);
 
 }

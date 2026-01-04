@@ -8,8 +8,8 @@ import com.example.sixpark.domain.seat.repository.SeatRepository;
 import com.example.sixpark.domain.seat.service.SeatService;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
 import com.example.sixpark.domain.showinfo.repository.ShowInfoRepository;
-import com.example.sixpark.domain.showtime.entity.ShowTime;
-import com.example.sixpark.domain.showtime.repository.ShowTimeRepository;
+import com.example.sixpark.domain.showplace.entity.ShowPlace;
+import com.example.sixpark.domain.showplace.repository.ShowPlaceRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,7 +34,7 @@ class PessimisticLockTest {
     @Autowired
     ShowInfoRepository showInfoRepository;
     @Autowired
-    ShowTimeRepository showTimeRepository;
+    ShowPlaceRepository showPlaceRepository;
     @Autowired
     GenreRepository genreRepository;
 
@@ -48,7 +48,7 @@ class PessimisticLockTest {
                         genre,
                         "TEST_MT20ID",
                         "테스트 공연",
-                        List.of("배우1"),
+                        List.of("배우1").toString(),
                         LocalDate.now(),
                         LocalDate.now().plusDays(1),
                         "poster.jpg",
@@ -56,17 +56,18 @@ class PessimisticLockTest {
                 )
         );
 
-        ShowTime showTime = showTimeRepository.save(
-                new ShowTime(
+        ShowPlace showTime = showPlaceRepository.save(
+                new ShowPlace(
                         showInfo,
                         "서울",
                         "테스트 공연장",
                         100L,
-                        LocalTime.of(19, 0)
+                        "금요일(18:00,20:30)",
+                        "1시간 30분"
                 )
         );
 
-        Seat seat = new Seat(showInfo, showTime);
+        Seat seat = new Seat(showTime, LocalDate.now(), LocalTime.now());
         ReflectionTestUtils.setField(seat, "id", 1L);
         seatRepository.save(seat);
 
@@ -76,8 +77,7 @@ class PessimisticLockTest {
         Runnable task = () -> {
             try {
                 SelectSeatRequest request = new SelectSeatRequest();
-                ReflectionTestUtils.setField(request, "id", 1L);
-                ReflectionTestUtils.setField(request, "showtime", showTime);
+                ReflectionTestUtils.setField(request, "seatId", 1L);
 
                 seatService.selectSeat(request);
                 successCount.incrementAndGet(); // 성공 카운트
@@ -115,7 +115,7 @@ class PessimisticLockTest {
                         genre,
                         "MT20ID_TEST",
                         "테스트 공연",
-                        List.of("배우1"),
+                        List.of("배우1").toString(),
                         LocalDate.now(),
                         LocalDate.now().plusDays(1),
                         "poster.jpg",
@@ -123,17 +123,18 @@ class PessimisticLockTest {
                 )
         );
 
-        ShowTime showTime = showTimeRepository.save(
-                new ShowTime(
+        ShowPlace showTime = showPlaceRepository.save(
+                new ShowPlace(
                         showInfo,
                         "서울",
                         "테스트 공연장",
                         100L,
-                        LocalTime.of(19, 0)
+                        "금요일(18:00,20:30)",
+                        "1시간 30분"
                 )
         );
 
-        Seat seat = new Seat(showInfo, showTime);
+        Seat seat = new Seat(showTime, LocalDate.now(), LocalTime.now());
         ReflectionTestUtils.setField(seat, "id", 1L);
         seatRepository.save(seat);
 
@@ -143,8 +144,7 @@ class PessimisticLockTest {
         Runnable task = () -> {
             try {
                 SelectSeatRequest request = new SelectSeatRequest();
-                ReflectionTestUtils.setField(request, "id", 1L);
-                ReflectionTestUtils.setField(request, "showtime", showTime);
+                ReflectionTestUtils.setField(request, "seatId", 1L);
 
                 seatService.selectSeatNoLock(request);
                 successCount.incrementAndGet(); // 성공 카운트

@@ -20,6 +20,7 @@ public class SeatService {
 
     private final SeatRepository seatRepository;
 
+//    public void CreateSeat()
     /**
      * 좌석 선택
      * @param request 좌석 선택 요청 DTO (좌석, 공연시간)
@@ -27,7 +28,7 @@ public class SeatService {
      */
     public SelectSeatResponse selectSeat(SelectSeatRequest request) {
         // 좌석 조회
-        Seat seat = seatRepository.findByIdForLOCK(request.getSeatId(), request.getShowtimeId()) // 🔒 락 획득
+        Seat seat = seatRepository.findByIdForLOCK(request.getSeatId()) // 🔒 락 획득
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_SEAT));
 
         log.info("{} -> 락 획득 완료", Thread.currentThread().getName());
@@ -46,7 +47,7 @@ public class SeatService {
      */
     public SelectSeatResponse selectSeatNoLock(SelectSeatRequest request) {
         // 좌석 조회
-        Seat seat = seatRepository.findBySeatIdAndShowtimeId(request.getSeatId(), request.getShowtimeId())
+        Seat seat = seatRepository.findById(request.getSeatId())
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_SEAT));
 
         log.info("{} -> 락 획득 완료", Thread.currentThread().getName());

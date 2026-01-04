@@ -1,11 +1,13 @@
 package com.example.sixpark.domain.seat.entity;
 
-import com.example.sixpark.domain.showinfo.entity.ShowInfo;
-import com.example.sixpark.domain.showtime.entity.ShowTime;
+import com.example.sixpark.domain.showplace.entity.ShowPlace;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -16,18 +18,21 @@ public class Seat {
     private Long id; // 좌석 번호
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "show_time_id")
-    private ShowTime showtime; // 공연 시간
+    @JoinColumn(name = "show_place_id")
+    private ShowPlace showPlace; // 공연 장소 정보
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "show_info_id")
-    private ShowInfo showinfo; // 공연 정보
+    @Column(nullable = false)
+    private LocalDate showDate; // 공연 날짜
+
+    @Column(nullable = false)
+    private LocalTime showTime; // 공연 시간
 
     private boolean isSelected = false; // 좌석 선택 여부
 
-    public Seat(ShowInfo showinfo, ShowTime showtime) {
-        this.showinfo = showinfo;
-        this.showtime = showtime;
+    public Seat(ShowPlace showPlace, LocalDate showDate, LocalTime showTime) {
+        this.showPlace = showPlace;
+        this.showDate = showDate;
+        this.showTime = showTime;
     }
 
     /**
