@@ -2,6 +2,7 @@ package com.example.sixpark.domain.post.service;
 
 import com.example.sixpark.common.enums.ErrorMessage;
 import com.example.sixpark.common.excepion.CustomException;
+import com.example.sixpark.common.security.userDetail.AuthUser;
 import com.example.sixpark.domain.post.entity.Post;
 import com.example.sixpark.domain.post.model.dto.PostDto;
 import com.example.sixpark.domain.post.model.request.PostCreateRequest;
@@ -16,7 +17,6 @@ import com.example.sixpark.domain.showinfo.repository.ShowInfoRepository;
 import com.example.sixpark.domain.user.entity.User;
 import com.example.sixpark.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,12 +32,20 @@ public class PostService {
 
     // 게시글 생성 기능
     @Transactional
-    public PostCreateResponse createPost(Long userId, Long showInfoId, PostCreateRequest request) {
-        User user = userRepository.findById(userId)
+    public PostCreateResponse createPost(PostCreateRequest request, AuthUser authUser) {
+        User user = userRepository.findById(authUser.getUserId())
                 .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_USER));
 
-        ShowInfo showInfo = showInfoRepository.findById(showInfoId)
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorMessage.NOT_FOUND_USER);
+        }
+
+        ShowInfo showInfo = showInfoRepository.findById(request.getShowInfoId())
                 .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO));
+
+        if (showInfo.isDeleted()) {
+            throw new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO);
+        }
 
         Post post = new Post(user, showInfo, request.getTitle(), request.getContent());
         Post savedPost = postRepository.save(post);
@@ -88,7 +96,6 @@ public class PostService {
 
         PostDto postDto = PostDto.from(post);
         return PostUpdateResponse.from(postDto);
-
     }
 
     @Transactional

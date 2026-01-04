@@ -2,6 +2,7 @@ package com.example.sixpark.domain.post.controller;
 
 import com.example.sixpark.common.response.ApiResponse;
 import com.example.sixpark.common.response.PageResponse;
+import com.example.sixpark.common.security.userDetail.AuthUser;
 import com.example.sixpark.domain.post.model.request.PostCreateRequest;
 import com.example.sixpark.domain.post.model.request.PostUpdateRequest;
 import com.example.sixpark.domain.post.model.response.PostCreateResponse;
@@ -11,15 +12,13 @@ import com.example.sixpark.domain.post.model.response.PostUpdateResponse;
 import com.example.sixpark.domain.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.constraints.pl.REGON;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Locale;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,11 +29,10 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<PostCreateResponse>> createPost(
-            @RequestParam Long userId,
-            @RequestParam Long showInfoId,
-            @Valid @RequestBody PostCreateRequest request) {
+            @Valid @RequestBody PostCreateRequest request,
+            @AuthenticationPrincipal AuthUser authUser) {
 
-        PostCreateResponse response = postService.createPost(userId, showInfoId, request);
+        PostCreateResponse response = postService.createPost(request, authUser);
         return ResponseEntity.ok(ApiResponse.success("게시글이 생성되었습니다", response));
     }
 
@@ -62,22 +60,22 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success("게시글 조회 성공", response));
     }
 
-    @PutMapping("/{postid}")
+    @PutMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostUpdateResponse>> updatePost(
-            @RequestParam Long userId,
-            @PathVariable Long postid,
-            @RequestBody PostUpdateRequest request) {
+            @PathVariable Long postId,
+            @Valid @RequestBody PostUpdateRequest request,
+            @AuthenticationPrincipal AuthUser authUser) {
 
-        PostUpdateResponse response = postService.updatePost(userId, postid, request);
+        PostUpdateResponse response = postService.updatePost(authUser.getUserId(), postId, request);
         return ResponseEntity.ok(ApiResponse.success("게시글이 수정되었습니다.", response));
     }
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> deletePost(
-            @RequestParam Long userId,
-            @PathVariable Long postId) {
+            @PathVariable Long postId,
+            @AuthenticationPrincipal AuthUser authUser) {
 
-        postService.deletePost(userId, postId);
+        postService.deletePost(authUser.getUserId(), postId);
         return ResponseEntity.ok(ApiResponse.success("게시글이 삭제되었습니다."));
     }
 }
