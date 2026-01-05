@@ -11,9 +11,7 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
-
 import java.util.List;
-
 import static com.example.sixpark.domain.comment.entity.QComment.comment;
 import static com.example.sixpark.domain.post.entity.QPost.post;
 import static com.example.sixpark.domain.user.entity.QUser.user;

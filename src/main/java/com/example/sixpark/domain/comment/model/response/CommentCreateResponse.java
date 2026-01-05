@@ -4,14 +4,12 @@ import com.example.sixpark.domain.comment.model.dto.CommentDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentCreateResponse {
-
     private final Long id;
     private final Long postId;
     private final Long writerId;

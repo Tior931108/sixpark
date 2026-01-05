@@ -4,7 +4,6 @@ import com.example.sixpark.domain.comment.entity.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Getter

@@ -2,7 +2,6 @@ package com.example.sixpark.domain.comment.model.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 @Data

@@ -1,10 +1,8 @@
 package com.example.sixpark.domain.comment.model.response;
 
 import com.example.sixpark.domain.comment.model.dto.CommentDto;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import java.time.LocalDateTime;
 
 @Getter
