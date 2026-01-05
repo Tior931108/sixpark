@@ -4,13 +4,19 @@ import com.example.sixpark.common.enums.ErrorMessage;
 import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.domain.seat.entity.Seat;
 import com.example.sixpark.domain.seat.model.dto.SeatDto;
+import com.example.sixpark.domain.seat.model.request.CreateSeatRequest;
 import com.example.sixpark.domain.seat.model.request.SelectSeatRequest;
 import com.example.sixpark.domain.seat.model.response.SelectSeatResponse;
 import com.example.sixpark.domain.seat.repository.SeatRepository;
+import com.example.sixpark.domain.showschedule.entiry.ShowSchedule;
+import com.example.sixpark.domain.showschedule.repository.ShowScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -19,12 +25,35 @@ import org.springframework.transaction.annotation.Transactional;
 public class SeatService {
 
     private final SeatRepository seatRepository;
+    private final ShowScheduleRepository showScheduleRepository;
 
-//    public void CreateSeat()
+    /**
+     * 좌석 생성
+     * @param requestList 스케줄 ID 리스트
+     */
+    public void createSeat(List<CreateSeatRequest> requestList) {
+        List<Seat> seats = new ArrayList<>();
+        for (CreateSeatRequest request : requestList) {
+            // 스케줄 조회
+            ShowSchedule schedule = showScheduleRepository.findById(request.getScheduleId())
+                    .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_SCHEDULE));
+
+            // 좌석이 이미 존재하는지 확인
+            if (seatRepository.existsByShowSchedule(schedule)) continue;
+
+            Long count = schedule.getShowPlace().getSeatscale(); // 좌석 수
+            for (int i=0; i<count; i++) { // 좌석 수 만큼 생성
+                Seat seat = new Seat(schedule, i+1);
+                seats.add(seat);
+            }
+        }
+        seatRepository.saveAll(seats);
+    }
+
     /**
      * 좌석 선택
-     * @param request 좌석 선택 요청 DTO (좌석, 공연시간)
-     * @return 좌석 선택 응답 DTO (좌석, 공연시간, 공연정보)
+     * @param request 좌석 선택 요청 DTO (좌석 ID)
+     * @return 좌석 선택 응답 DTO (좌석 ID)
      */
     public SelectSeatResponse selectSeat(SelectSeatRequest request) {
         // 좌석 조회

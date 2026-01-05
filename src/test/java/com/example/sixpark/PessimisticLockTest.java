@@ -10,6 +10,8 @@ import com.example.sixpark.domain.showinfo.entity.ShowInfo;
 import com.example.sixpark.domain.showinfo.repository.ShowInfoRepository;
 import com.example.sixpark.domain.showplace.entity.ShowPlace;
 import com.example.sixpark.domain.showplace.repository.ShowPlaceRepository;
+import com.example.sixpark.domain.showschedule.entiry.ShowSchedule;
+import com.example.sixpark.domain.showschedule.repository.ShowScheduleRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,40 +38,14 @@ class PessimisticLockTest {
     @Autowired
     ShowPlaceRepository showPlaceRepository;
     @Autowired
+    ShowScheduleRepository showScheduleRepository;
+    @Autowired
     GenreRepository genreRepository;
 
     @Test
     void 동시에_좌석_선택_테스트() {
         // given
-        Genre genre = genreRepository.save(new Genre("뮤지컬"));
-
-        ShowInfo showInfo = showInfoRepository.save(
-                new ShowInfo(
-                        genre,
-                        "TEST_MT20ID",
-                        "테스트 공연",
-                        List.of("배우1").toString(),
-                        LocalDate.now(),
-                        LocalDate.now().plusDays(1),
-                        "poster.jpg",
-                        12
-                )
-        );
-
-        ShowPlace showTime = showPlaceRepository.save(
-                new ShowPlace(
-                        showInfo,
-                        "서울",
-                        "테스트 공연장",
-                        100L,
-                        "금요일(18:00,20:30)",
-                        "1시간 30분"
-                )
-        );
-
-        Seat seat = new Seat(showTime, LocalDate.now(), LocalTime.now());
-        ReflectionTestUtils.setField(seat, "id", 1L);
-        seatRepository.save(seat);
+        setUpSeatData();
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
         AtomicInteger successCount = new AtomicInteger();
@@ -86,57 +62,14 @@ class PessimisticLockTest {
             }
         };
 
-        // when (동시에 실행)
-        executor.submit(task);
-        executor.submit(task);
-        executor.submit(task);
-
-        executor.shutdown();
-
-        try {
-            Thread.sleep(1500); // 스레드 종료 대기
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        // then
-        assertThat(successCount.get())
-                .as("동시에 여러 요청이 성공하면 안 된다")
-                .isEqualTo(1); // 성공 카운트가 1개여야 테스트 통과
+        // when & then
+        run(executor, successCount, task);
     }
 
     @Test
     void 동시에_좌석_선택_테스트_락없음 () {
         // given
-        Genre genre = genreRepository.save(new Genre("뮤지컬"));
-
-        ShowInfo showInfo = showInfoRepository.save(
-                new ShowInfo(
-                        genre,
-                        "MT20ID_TEST",
-                        "테스트 공연",
-                        List.of("배우1").toString(),
-                        LocalDate.now(),
-                        LocalDate.now().plusDays(1),
-                        "poster.jpg",
-                        12
-                )
-        );
-
-        ShowPlace showTime = showPlaceRepository.save(
-                new ShowPlace(
-                        showInfo,
-                        "서울",
-                        "테스트 공연장",
-                        100L,
-                        "금요일(18:00,20:30)",
-                        "1시간 30분"
-                )
-        );
-
-        Seat seat = new Seat(showTime, LocalDate.now(), LocalTime.now());
-        ReflectionTestUtils.setField(seat, "id", 1L);
-        seatRepository.save(seat);
+        setUpSeatData();
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
         AtomicInteger successCount = new AtomicInteger();
@@ -153,7 +86,46 @@ class PessimisticLockTest {
             }
         };
 
-        // when (동시에 실행)
+        // when & then
+        run(executor, successCount, task);
+    }
+
+    private void setUpSeatData() {
+        Genre genre = genreRepository.save(new Genre("뮤지컬"));
+
+        ShowInfo showInfo = showInfoRepository.save(
+                ShowInfo.create(
+                        genre,
+                        "TEST_MT20ID",
+                        "테스트 공연",
+                        List.of("배우1").toString(),
+                        LocalDate.now(),
+                        LocalDate.now().plusDays(1),
+                        "poster.jpg",
+                        12
+                )
+        );
+
+        ShowPlace showPlace = showPlaceRepository.save(
+                ShowPlace.create(
+                        showInfo,
+                        "서울",
+                        "테스트 공연장",
+                        100L,
+                        "금요일(18:00,20:30)",
+                        "1시간 30분"
+                )
+        );
+
+        ShowSchedule showSchedule = showScheduleRepository.save(
+                new ShowSchedule(showInfo, showPlace, LocalDate.now(), LocalTime.now())
+        );
+
+        seatRepository.save(new Seat(showSchedule, 1));
+    }
+
+    private void run(ExecutorService executor, AtomicInteger successCount, Runnable task) {
+        // when
         executor.submit(task);
         executor.submit(task);
         executor.submit(task);
