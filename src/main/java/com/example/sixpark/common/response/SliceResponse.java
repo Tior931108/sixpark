@@ -1,8 +1,9 @@
 package com.example.sixpark.common.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import org.springframework.data.domain.Slice;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -11,13 +12,14 @@ public class SliceResponse<T> {
     private final boolean success;
     private final String message;
     private final SliceData<T> data;
-    private final Instant timestamp;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private final LocalDateTime timestamp;
 
     private SliceResponse(boolean success, String message, SliceData<T> data) {
         this.success = success;
         this.message = message;
         this.data = data;
-        this.timestamp = Instant.now();
+        this.timestamp = LocalDateTime.now();
     }
 
     // 커스텀 메시지와 함께
