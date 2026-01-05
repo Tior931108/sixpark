@@ -9,25 +9,24 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class CommentResponse {
+public class CommentParentResponse {
     private final Long id;
     private final Long postId;
     private final Long writerId;
     private final WriterResponse writer;
     private final String content;
-    private final Long parentId;
+    private final Long childCommentCount;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public static CommentResponse from(CommentDto dto, WriterResponse writer) {
-        return new CommentResponse(
+    public static CommentParentResponse from(CommentDto dto, Long childCommentCount, WriterResponse writer) {
+        return new CommentParentResponse(
                 dto.getId(),
                 dto.getPostId(),
                 dto.getWriterId(),
                 writer,
                 dto.getContent(),
-                dto.getParentId(),
+                childCommentCount,
                 dto.getCreatedAt(),
                 dto.getModifiedAt()
         );

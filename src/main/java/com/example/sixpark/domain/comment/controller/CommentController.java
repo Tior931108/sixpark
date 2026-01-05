@@ -7,8 +7,8 @@ import com.example.sixpark.domain.comment.model.request.CommentCreateRequest;
 import com.example.sixpark.domain.comment.model.request.CommentSearchRequest;
 import com.example.sixpark.domain.comment.model.request.CommentUpdateRequest;
 import com.example.sixpark.domain.comment.model.response.CommentCreateResponse;
-import com.example.sixpark.domain.comment.model.response.CommentResponse;
-import com.example.sixpark.domain.comment.model.response.CommentSearchResponse;
+import com.example.sixpark.domain.comment.model.response.CommentChildResponse;
+import com.example.sixpark.domain.comment.model.response.CommentParentResponse;
 import com.example.sixpark.domain.comment.model.response.CommentUpdateResponse;
 import com.example.sixpark.domain.comment.service.CommentService;
 import jakarta.validation.Valid;
@@ -71,8 +71,8 @@ public class CommentController {
      * @return 댓글 검색 결과
      */
     @GetMapping("/search")
-    public ResponseEntity<SliceResponse<CommentSearchResponse>> getSearchComment(@ModelAttribute CommentSearchRequest request, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        SliceResponse<CommentSearchResponse> response = commentService.getSearchComment(request, pageable);
+    public ResponseEntity<SliceResponse<CommentParentResponse>> getSearchComment(@ModelAttribute CommentSearchRequest request, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        SliceResponse<CommentParentResponse> response = commentService.getSearchComment(request, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -83,8 +83,8 @@ public class CommentController {
      * @return 부모 댓글 조회 결과
      */
     @GetMapping
-    public ResponseEntity<SliceResponse<CommentResponse>> getParentComment(@RequestParam Long postId, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        SliceResponse<CommentResponse> response = commentService.getParentComment(postId, pageable);
+    public ResponseEntity<SliceResponse<CommentParentResponse>> getParentComment(@RequestParam Long postId, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        SliceResponse<CommentParentResponse> response = commentService.getParentComment(postId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -96,8 +96,8 @@ public class CommentController {
      * @return 대댓글 조회 결과
      */
     @GetMapping("/{parentCommentId}/child-comments")
-    public ResponseEntity<SliceResponse<CommentResponse>> getChildComment(@PathVariable Long parentCommentId, @RequestParam Long postId, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        SliceResponse<CommentResponse> response = commentService.getChildComment(parentCommentId, postId, pageable);
+    public ResponseEntity<SliceResponse<CommentChildResponse>> getChildComment(@PathVariable Long parentCommentId, @RequestParam Long postId, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        SliceResponse<CommentChildResponse> response = commentService.getChildComment(parentCommentId, postId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

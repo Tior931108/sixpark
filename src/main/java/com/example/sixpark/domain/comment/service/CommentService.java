@@ -3,8 +3,9 @@ package com.example.sixpark.domain.comment.service;
 import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.common.response.SliceResponse;
 import com.example.sixpark.domain.comment.entity.Comment;
+import com.example.sixpark.domain.comment.model.dto.CommentChildGetQueryDto;
 import com.example.sixpark.domain.comment.model.dto.CommentDto;
-import com.example.sixpark.domain.comment.model.dto.CommentGetQueryDto;
+import com.example.sixpark.domain.comment.model.dto.CommentParentGetQueryDto;
 import com.example.sixpark.domain.comment.model.request.CommentCreateRequest;
 import com.example.sixpark.domain.comment.model.request.CommentSearchRequest;
 import com.example.sixpark.domain.comment.model.request.CommentUpdateRequest;
@@ -155,13 +156,13 @@ public class CommentService {
      * @return 댓글 검색 결과
      */
     @Transactional(readOnly = true)
-    public SliceResponse<CommentSearchResponse> getSearchComment(CommentSearchRequest request, Pageable pageable) {
+    public SliceResponse<CommentParentResponse> getSearchComment(CommentSearchRequest request, Pageable pageable) {
         Post post = getPostByIdOrThrow(request.getPostId());
 
-        Slice<CommentGetQueryDto> commentList = commentRepository.getSearchComments(post.getId(), request.getSearchKey(), pageable);
+        Slice<CommentParentGetQueryDto> commentList = commentRepository.getSearchComments(post.getId(), request.getSearchKey(), pageable);
 
-        Slice<CommentSearchResponse> commentPageList = commentList.map(dto ->
-                new CommentSearchResponse(
+        Slice<CommentParentResponse> commentPageList = commentList.map(dto ->
+                new CommentParentResponse(
                         dto.getId(),
                         dto.getPostId(),
                         dto.getWriterId(),
@@ -170,7 +171,7 @@ public class CommentService {
                                 dto.getNickname()
                         ),
                         dto.getContent(),
-                        dto.getParentId(),
+                        dto.getChildCommentCount(),
                         dto.getCreatedAt(),
                         dto.getModifiedAt()
                 )
@@ -185,12 +186,12 @@ public class CommentService {
      * @return 부모 조회 결과
      */
     @Transactional(readOnly = true)
-    public SliceResponse<CommentResponse> getParentComment(Long postId, Pageable pageable) {
+    public SliceResponse<CommentParentResponse> getParentComment(Long postId, Pageable pageable) {
         Post post = getPostByIdOrThrow(postId);
-        Slice<CommentGetQueryDto> parentCommentList = commentRepository.getParentComment(post.getId(), pageable);
+        Slice<CommentParentGetQueryDto> parentCommentList = commentRepository.getParentComment(post.getId(), pageable);
 
-        Slice<CommentResponse> parentCommentSliceList = parentCommentList.map(dto ->
-                new CommentResponse(
+        Slice<CommentParentResponse> parentCommentSliceList = parentCommentList.map(dto ->
+                new CommentParentResponse(
                         dto.getId(),
                         dto.getPostId(),
                         dto.getWriterId(),
@@ -199,7 +200,7 @@ public class CommentService {
                                 dto.getNickname()
                         ),
                         dto.getContent(),
-                        dto.getParentId(),
+                        dto.getChildCommentCount(),
                         dto.getCreatedAt(),
                         dto.getModifiedAt()
                 )
@@ -215,14 +216,14 @@ public class CommentService {
      * @return 자식 조회 결과
      */
     @Transactional(readOnly = true)
-    public SliceResponse<CommentResponse> getChildComment(Long parentCommentId, Long postId, Pageable pageable) {
+    public SliceResponse<CommentChildResponse> getChildComment(Long parentCommentId, Long postId, Pageable pageable) {
         Post post = getPostByIdOrThrow(postId);
         getCommentByIdOrThrow(parentCommentId);
 
-        Slice<CommentGetQueryDto> childCommentList = commentRepository.getChildComment(parentCommentId, post.getId(), pageable);
+        Slice<CommentChildGetQueryDto> childCommentList = commentRepository.getChildComment(parentCommentId, post.getId(), pageable);
 
-        Slice<CommentResponse> childCommentSliceList = childCommentList.map(dto ->
-                new CommentResponse(
+        Slice<CommentChildResponse> childCommentSliceList = childCommentList.map(dto ->
+                new CommentChildResponse(
                         dto.getId(),
                         dto.getPostId(),
                         dto.getWriterId(),
