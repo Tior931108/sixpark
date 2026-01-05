@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Getter
-public class PostCreateResponse {
+public class PostUpdateResponse {
 
     private final Long id;
     private final Long userId;
@@ -18,8 +18,8 @@ public class PostCreateResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    public static PostCreateResponse from(PostDto postDto) {
-        return new PostCreateResponse(
+    public static PostUpdateResponse from(PostDto postDto) {
+        return new PostUpdateResponse(
                 postDto.getId(),
                 postDto.getUserId(),
                 postDto.getShowInfoId(),

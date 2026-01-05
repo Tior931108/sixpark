@@ -35,9 +35,9 @@ public enum ErrorMessage {
     // 404 Not Found : 리소스가 없음
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     NOT_FOUND_TASK_USER(HttpStatus.NOT_FOUND, "담당자를 찾을 수 없습니다."),
-    NOT_FOUND_TASK(HttpStatus.NOT_FOUND, "작업을 찾을 수 없습니다."),
+    NOT_FOUND_POST(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
     NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
-    NOT_FOUND_TEAM(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다."),
+    NOT_FOUND_SHOWINFO(HttpStatus.NOT_FOUND, "공연 정보를 찾을 수 없습니다."),
     NOT_FOUND_TEAM_MEMBER(HttpStatus.NOT_FOUND, "팀 멤버를 찾을 수 없습니다."),
     // 409 Conflict : 중복 데이터
     EXIST_EMAIL(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
