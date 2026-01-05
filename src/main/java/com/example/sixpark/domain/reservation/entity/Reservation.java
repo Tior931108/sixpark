@@ -27,8 +27,15 @@ public class Reservation extends BaseEntity {
 
     private int count = 1; // 1인 1티켓
 
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
     public Reservation(User user, Seat seat) {
         this.user = user;
         this.seat = seat;
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
     }
 }

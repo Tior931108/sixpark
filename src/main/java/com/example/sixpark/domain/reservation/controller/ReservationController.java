@@ -1,13 +1,24 @@
 package com.example.sixpark.domain.reservation.controller;
 
 import com.example.sixpark.common.response.ApiResponse;
+import com.example.sixpark.common.response.PageResponse;
+import com.example.sixpark.common.security.userDetail.AuthUser;
 import com.example.sixpark.domain.reservation.medel.request.ReservationCreateRequest;
 import com.example.sixpark.domain.reservation.medel.response.ReservationCreateResponse;
+import com.example.sixpark.domain.reservation.medel.response.ReservationGetInfoResponse;
 import com.example.sixpark.domain.reservation.service.ReservationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,5 +41,29 @@ public class ReservationController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("", result));
+    }
+
+    /**
+     * 예매 상세조회(본인) API 비지니스 로직
+     */
+    @GetMapping("/book")
+    public PageResponse<ReservationGetInfoResponse> getMyReservations(
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestParam(required = false) Boolean status, // true = 취소
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        return PageResponse.success(
+                "예매 목록을 조회했습니다.",
+                reservationService.getMyReservations(
+                        authUser.getUserId(),
+                        status,
+                        startDate,
+                        endDate,
+                        pageable
+                )
+        );
     }
 }

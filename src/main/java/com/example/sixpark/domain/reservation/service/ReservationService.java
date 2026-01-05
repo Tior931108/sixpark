@@ -6,14 +6,21 @@ import com.example.sixpark.domain.reservation.entity.Reservation;
 import com.example.sixpark.domain.reservation.medel.dto.ReservationDto;
 import com.example.sixpark.domain.reservation.medel.request.ReservationCreateRequest;
 import com.example.sixpark.domain.reservation.medel.response.ReservationCreateResponse;
+import com.example.sixpark.domain.reservation.medel.response.ReservationGetInfoResponse;
 import com.example.sixpark.domain.reservation.repository.ReservationRepository;
 import com.example.sixpark.domain.seat.entity.Seat;
 import com.example.sixpark.domain.seat.repository.SeatRepository;
 import com.example.sixpark.domain.user.entity.User;
 import com.example.sixpark.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Service
 @RequiredArgsConstructor
@@ -42,5 +49,33 @@ public class ReservationService {
         reservationRepository.save(reservation);
 
         return ReservationCreateResponse.from(ReservationDto.from(reservation));
+    }
+
+    /**
+     * 예매 상세조회(본인) API 비지니스 로직
+     */
+    @Transactional(readOnly = true)
+    public Page<ReservationGetInfoResponse> getMyReservations(
+            Long userId,
+            Boolean isDeleted,
+            LocalDate startDate,
+            LocalDate endDate,
+            Pageable pageable
+    ) {
+        LocalDateTime startDateTime = startDate != null
+                ? startDate.atStartOfDay()
+                : null;
+
+        LocalDateTime endDateTime = endDate != null
+                ? endDate.atTime(LocalTime.MAX)
+                : null;
+
+        return reservationRepository.findMyReservations(
+                userId,
+                isDeleted,
+                startDateTime,
+                endDateTime,
+                pageable
+        );
     }
 }
