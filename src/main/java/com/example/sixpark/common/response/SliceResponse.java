@@ -2,7 +2,6 @@ package com.example.sixpark.common.response;
 
 import lombok.Getter;
 import org.springframework.data.domain.Slice;
-
 import java.time.Instant;
 import java.util.List;
 
