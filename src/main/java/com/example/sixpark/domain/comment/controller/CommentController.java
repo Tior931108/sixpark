@@ -4,12 +4,8 @@ import com.example.sixpark.common.response.ApiResponse;
 import com.example.sixpark.common.response.SliceResponse;
 import com.example.sixpark.common.security.userDetail.AuthUser;
 import com.example.sixpark.domain.comment.model.request.CommentCreateRequest;
-import com.example.sixpark.domain.comment.model.request.CommentSearchRequest;
 import com.example.sixpark.domain.comment.model.request.CommentUpdateRequest;
-import com.example.sixpark.domain.comment.model.response.CommentCreateResponse;
-import com.example.sixpark.domain.comment.model.response.CommentChildResponse;
-import com.example.sixpark.domain.comment.model.response.CommentParentResponse;
-import com.example.sixpark.domain.comment.model.response.CommentUpdateResponse;
+import com.example.sixpark.domain.comment.model.response.*;
 import com.example.sixpark.domain.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +32,8 @@ public class CommentController {
      * @return 댓글 생성 결과
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<CommentCreateResponse>> createComment(@AuthenticationPrincipal AuthUser authUser, @Valid @RequestBody CommentCreateRequest request) {
-        CommentCreateResponse response = commentService.createComment(authUser.getUserId(), request);
+    public ResponseEntity<ApiResponse<CommentResponse>> createComment(@AuthenticationPrincipal AuthUser authUser, @Valid @RequestBody CommentCreateRequest request) {
+        CommentResponse response = commentService.createComment(authUser.getUserId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("댓글이 생성되었습니다.", response));
     }
 
@@ -48,8 +44,8 @@ public class CommentController {
      * @return 댓글 수정 결과
      */
     @PutMapping("/{commentId}")
-    public ResponseEntity<ApiResponse<CommentUpdateResponse>> updateComment(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long commentId, @Valid @RequestBody CommentUpdateRequest request) {
-        CommentUpdateResponse response = commentService.updateComment(authUser.getUserId(), commentId, request);
+    public ResponseEntity<ApiResponse<CommentResponse>> updateComment(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long commentId, @Valid @RequestBody CommentUpdateRequest request) {
+        CommentResponse response = commentService.updateComment(authUser.getUserId(), commentId, request);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("댓글이 수정되었습니다.", response));
     }
 
@@ -66,13 +62,14 @@ public class CommentController {
 
     /**
      * 댓글 검색
-     * @param request 게시글 id, 검색 내용을 포함한 요청 DTO
+     * @param postId 게시글 id
+     * @param searchKey 검색어
      * @param pageable 페이징
      * @return 댓글 검색 결과
      */
     @GetMapping("/search")
-    public ResponseEntity<SliceResponse<CommentParentResponse>> getSearchComment(@ModelAttribute CommentSearchRequest request, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        SliceResponse<CommentParentResponse> response = commentService.getSearchComment(request, pageable);
+    public ResponseEntity<SliceResponse<CommentParentResponse>> getSearchComment(@RequestParam Long postId, @RequestParam(required = false) String searchKey, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        SliceResponse<CommentParentResponse> response = commentService.getSearchComment(postId, searchKey, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

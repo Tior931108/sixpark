@@ -138,6 +138,23 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
         return new SliceImpl<>(commentList, pageable, hasNext);
     }
 
+    private OrderSpecifier<?>[] getOrderSpecifiers(Sort sort) {
+        if (sort.isUnsorted()) {
+            return new OrderSpecifier[]{ comment.createdAt.desc() };
+        }
+
+        return sort.stream()
+                .map(order -> {
+                    if ("createdAt".equals(order.getProperty())) {
+                        return order.isAscending()
+                                ? comment.createdAt.asc()
+                                : comment.createdAt.desc();
+                    }
+                    return comment.createdAt.desc();
+                })
+                .toArray(OrderSpecifier[]::new);
+    }
+
     private BooleanExpression contentCondition(String searchKey) {
         if (searchKey == null || searchKey.isBlank()) {
             return null;
@@ -154,23 +171,6 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
                                         )
                                 .exists()
                 );
-    }
-
-    private OrderSpecifier<?>[] getOrderSpecifiers(Sort sort) {
-        if (sort.isUnsorted()) {
-            return new OrderSpecifier[]{ comment.createdAt.desc() };
-        }
-
-        return sort.stream()
-                .map(order -> {
-                    if ("createdAt".equals(order.getProperty())) {
-                        return order.isAscending()
-                                ? comment.createdAt.asc()
-                                : comment.createdAt.desc();
-                    }
-                    return comment.createdAt.desc();
-                })
-                .toArray(OrderSpecifier[]::new);
     }
 
     private BooleanExpression postIdCondition(Long postId) {
