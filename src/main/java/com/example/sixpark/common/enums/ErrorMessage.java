@@ -38,7 +38,10 @@ public enum ErrorMessage {
     NOT_FOUND_POST(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
     NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
     NOT_FOUND_SHOWINFO(HttpStatus.NOT_FOUND, "공연 정보를 찾을 수 없습니다."),
+    NOT_FOUND_SHOWPLACE(HttpStatus.NOT_FOUND, "공연 시간 및 장소를 찾을 수 없습니다."),
+    NOT_FOUND_GENRE(HttpStatus.NOT_FOUND, "존재하지 않는 장르입니다."),
     NOT_FOUND_TEAM_MEMBER(HttpStatus.NOT_FOUND, "팀 멤버를 찾을 수 없습니다."),
+
     // 409 Conflict : 중복 데이터
     EXIST_EMAIL(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     EXIST_USERNAME(HttpStatus.CONFLICT, "이미 사용 중인 아이디 이름입니다."),

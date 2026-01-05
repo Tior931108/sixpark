@@ -1,15 +1,26 @@
 package com.example.sixpark.domain.showinfo.service;
 
+import com.example.sixpark.common.enums.ErrorMessage;
+import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.domain.genre.entity.Genre;
+import com.example.sixpark.domain.genre.repository.GenreRepository;
 import com.example.sixpark.domain.genre.service.GenreService;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
 import com.example.sixpark.domain.showinfo.model.dto.KopisShowInfoDto;
+import com.example.sixpark.domain.showinfo.model.dto.ShowInfoDto;
+import com.example.sixpark.domain.showinfo.model.response.ShowInfoDetailResponse;
+import com.example.sixpark.domain.showinfo.model.response.ShowInfoResponse;
 import com.example.sixpark.domain.showinfo.repository.ShowInfoRepository;
 import com.example.sixpark.domain.showplace.entity.ShowPlace;
 import com.example.sixpark.domain.showplace.model.dto.KopisShowDetailDto;
+import com.example.sixpark.domain.showplace.model.dto.ShowPlaceDto;
 import com.example.sixpark.domain.showplace.repository.ShowPlaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +38,7 @@ public class ShowInfoService {
     private final ShowInfoRepository showInfoRepository;
     private final ShowPlaceRepository showPlaceRepository;
     private final GenreService genreService;
+    private final GenreRepository genreRepository;
     private final KopisApiService kopisApiService;
 
     /**
@@ -44,8 +56,7 @@ public class ShowInfoService {
                     kopisApiService.fetchShowInfoList(startDate, endDate, cpage, rows);
 
             if (performances.isEmpty()) {
-                log.warn("조회된 공연이 없습니다.");
-                return;
+                throw new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO);
             }
 
             // 로깅 전용 변수
@@ -375,5 +386,68 @@ public class ShowInfoService {
 
         // 무료 공연이거나, 가격정보가 없는 경우 0원
         return 0;
+    }
+
+
+    /**
+     * 공연 전체 조회 (페이징)
+     *
+     * @param page 페이지 번호 (0부터 시작)
+     * @param size 페이지 크기
+     * @param sortBy 정렬 기준 (기본값: id)
+     * @param direction 정렬 방향 (ASC, DESC)
+     * @return 페이징된 공연 목록
+     */
+    @Transactional(readOnly = true)
+    public Page<ShowInfoResponse> getAllShowInfos(Long genreId, int page, int size,
+                                                          String sortBy, String direction) {
+
+        // 장르 존재 확인 : 예외처리 장르 service에서 진행
+        Genre genre = genreService.getGenreById(genreId);
+
+        // 정렬 방향 설정
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC")
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        // Pageable 생성
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+
+        // 장르별 페이징 조회 (N+1 문제 해결된 메서드 사용)
+        Page<ShowInfo> showInfoPage = showInfoRepository.findByGenreIdWithGenre(genreId, pageable);
+
+        // 해당 장르의 공연이 없는 경우,
+       if(showInfoPage == null){
+           throw new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO);
+       }
+
+        // Entity -> DTO 변환 (ShowInfoResponse의 from 메서드 사용)
+        Page<ShowInfoResponse> responsePage = showInfoPage.map(showInfo ->
+                ShowInfoResponse.from(ShowInfoDto.from(showInfo))
+        );
+
+        log.info("공연 전체 조회 완료: page={}, size={}, totalElements={}",
+                page, size, responsePage.getTotalElements());
+
+        return responsePage;
+    }
+
+    /**
+     * 공연 상세 조회 (1개)
+     *
+     * @param showInfoId 공연 ID
+     * @return 공연 상세 정보 (ShowInfo + Genre + ShowTime)
+     */
+    @Transactional(readOnly = true)
+    public ShowInfoDetailResponse getShowInfoDetail(Long showInfoId) {
+        // 공연 정보 조회 (Genre Fetch Join)
+        ShowInfo showInfo = showInfoRepository.findByIdWithGenre(showInfoId)
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO));
+
+        // 공연 시간및 장소 정보 조회 (1:1 관계)
+        ShowPlace showPlace = showPlaceRepository.findByShowInfoId(showInfoId)
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_SHOWPLACE));
+
+        return ShowInfoDetailResponse.from(ShowInfoDto.from(showInfo), ShowPlaceDto.from(showPlace));
     }
 }
