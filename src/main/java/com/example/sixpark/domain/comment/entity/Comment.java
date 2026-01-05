@@ -36,11 +36,14 @@ public class Comment extends BaseEntity {
     @Column(nullable = false)
     private boolean isDeleted = false;
 
+    private Long childCommentCount;
+
     public Comment(String content, Post post, User user, Comment parentComment) {
         this.content = content;
         this.post = post;
         this.user = user;
         this.parentComment = parentComment;
+        this.childCommentCount = 0L;
     }
 
     public void update(String content) {
@@ -50,5 +53,13 @@ public class Comment extends BaseEntity {
     public void softDelete() {
         this.isDeleted = true;
         this.content = "해당 댓글은 삭제되었습니다";
+    }
+
+    public void addChildComments() {
+        this.childCommentCount++;
+    }
+
+    public void minusChildComments() {
+        this.childCommentCount--;
     }
 }

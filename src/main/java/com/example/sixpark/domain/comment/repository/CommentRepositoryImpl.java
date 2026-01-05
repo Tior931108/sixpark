@@ -32,27 +32,18 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
                         user.id,
                         user.nickname,
                         comment.content,
-                        childComment.id.count().coalesce(0L),
+                        comment.childCommentCount.coalesce(0L),
                         comment.createdAt,
                         comment.modifiedAt
                         ))
                 .from(comment)
                 .leftJoin(comment.post, post)
                 .leftJoin(comment.user, user)
-                .leftJoin(childComment).on(childComment.parentComment.id.eq(comment.id))
                 .where(
                         contentCondition(searchKey),
                         postIdCondition(postId),
-                        comment.parentComment.id.isNull()
-                )
-                .groupBy(
-                        comment.id,
-                        post.id,
-                        user.id,
-                        user.nickname,
-                        comment.content,
-                        comment.createdAt,
-                        comment.modifiedAt
+                        comment.parentComment.id.isNull(),
+                        comment.isDeleted.isFalse()
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
@@ -71,7 +62,7 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
                         user.id,
                         user.nickname,
                         comment.content,
-                        childComment.id.count().coalesce(0L),
+                        comment.childCommentCount.coalesce(0L),
                         comment.createdAt,
                         comment.modifiedAt
                 ))
@@ -81,16 +72,8 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
                 .leftJoin(childComment).on(childComment.parentComment.id.eq(comment.id))
                 .where(
                         postIdCondition(postId),
-                        comment.parentComment.id.isNull()
-                )
-                .groupBy(
-                        comment.id,
-                        post.id,
-                        user.id,
-                        user.nickname,
-                        comment.content,
-                        comment.createdAt,
-                        comment.modifiedAt
+                        comment.parentComment.id.isNull(),
+                        comment.isDeleted.isFalse()
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
@@ -119,7 +102,8 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
                 .where(
                         postIdCondition(postId),
                         comment.parentComment.id.isNotNull(),
-                        comment.parentComment.id.eq(parentCommentId)
+                        comment.parentComment.id.eq(parentCommentId),
+                        comment.isDeleted.isFalse()
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)

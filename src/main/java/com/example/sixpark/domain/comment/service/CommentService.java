@@ -20,6 +20,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
 import static com.example.sixpark.common.enums.ErrorMessage.*;
 
 @Service
@@ -47,14 +50,24 @@ public class CommentService {
         if (request.getParentId() != null) {
             parent = getCommentByIdOrThrow(request.getParentId());
             invalidParentComment(parent, post);
+            parent.addChildComments();
         }
 
-        Comment comment = commentRepository.save(new Comment(request.getContent(), post, writer, parent));
+        Comment comment = new Comment(
+                request.getContent(),
+                post,
+                writer,
+                parent
+        );
+
+        commentRepository.save(comment);
 
         CommentDto dto = CommentDto.from(comment);
 
         return CommentResponse.from(dto, WriterResponse.from(UserDto.from(writer)));
     }
+
+
 
     /**
      * 댓글 수정
@@ -90,6 +103,15 @@ public class CommentService {
 
         matchedWriter(writer.getId(), comment.getUser().getId());
 
+        // 자식 댓글인 경우 삭제 로직 return이 없으면 전체삭제됨
+        if (comment.getParentComment() != null) {
+            Comment parent = comment.getParentComment();
+            parent.minusChildComments();
+            comment.softDelete();
+            return;
+        }
+
+        deleteChildComments(comment);
         comment.softDelete();
     }
 
@@ -197,6 +219,10 @@ public class CommentService {
         if(!parent.getPost().getId().equals(post.getId())) {
             throw new CustomException(NOT_CORRECT_PARAMETER);
         }
+        // 부모 댓글이 삭제되어 있으면 생성안됨
+        if (parent.isDeleted()) {
+            throw new CustomException(NOT_CORRECT_PARAMETER);
+        }
         // 이미 부모 댓글이 있으면 대대댓글은 쓸수없도록 즉 대댓글까지만 가능하도록 예외처리(-> 깊이 1)
         if(parent.getParentComment() != null) {
             throw new CustomException(NOT_CORRECT_PARAMETER);
@@ -245,5 +271,10 @@ public class CommentService {
         if(!userId.equals(commentUserId)) {
             throw new CustomException(NOT_MODIFY_AUTHORIZED);
         }
+    }
+
+    private void deleteChildComments(Comment parent) {
+        List<Comment> childComments = commentRepository.findByParentComment_Id(parent.getId());
+        childComments.forEach(Comment::softDelete);
     }
 }
