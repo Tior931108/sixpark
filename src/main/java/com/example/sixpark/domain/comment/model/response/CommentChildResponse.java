@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CommentCreateResponse {
+public class CommentChildResponse {
     private final Long id;
     private final Long postId;
     private final Long writerId;
@@ -19,8 +19,8 @@ public class CommentCreateResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public static CommentCreateResponse from(CommentDto dto, WriterResponse writer) {
-        return new CommentCreateResponse(
+    public static CommentChildResponse from(CommentDto dto, WriterResponse writer) {
+        return new CommentChildResponse(
                 dto.getId(),
                 dto.getPostId(),
                 dto.getWriterId(),
