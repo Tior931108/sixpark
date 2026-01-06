@@ -16,7 +16,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -38,18 +37,15 @@ public class ShowScheduleService {
     );
 
     /**
-     * 스케줄 테이블 생성
-     * @param requestList 공연 장소
+     * 스케줄 생성
+     * @param request 공연 장소 id 범위
      */
-    public void createSchedule(List<ShowScheduleCreateRequest> requestList) {
-        // 공연 장소 id를 Set으로 받아서 중복 제거
-        Set<Long> placeIds = requestList.stream()
-                .map(ShowScheduleCreateRequest::getShowPlaceId).collect(Collectors.toSet());
+    public void createSchedule(ShowScheduleCreateRequest request) {
         // 공연 장소 한번에 조회
-        List<ShowPlace> places = showPlaceRepository.findAllById(placeIds);
+        List<ShowPlace> places = showPlaceRepository.findAllByRange(request.getStartPlaceId(), request.getEndPlaceId());
 
         // 못 찾은 게 있을 경우 예외 발생
-        if (placeIds.size() != places.size()) {
+        if (places.size() != request.getEndPlaceId() - request.getStartPlaceId() + 1) {
             throw new CustomException(ErrorMessage.NOT_FOUND_SHOW_PLACE);
         }
 
@@ -70,6 +66,7 @@ public class ShowScheduleService {
                 if (!map.containsKey(day)) continue;
 
                 for (LocalTime time : map.get(day)) { // 해당 요일의 공연시간마다 스케줄 저장
+                    if(showScheduleRepository.existsByShowInfoAndShowPlaceAndShowDateAndShowTime(info, place, date, time)) continue;
                     schedules.add(new ShowSchedule(info, place, date, time));
                 }
             }

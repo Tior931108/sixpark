@@ -4,9 +4,9 @@ import com.example.sixpark.common.enums.ErrorMessage;
 import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.domain.seat.entity.Seat;
 import com.example.sixpark.domain.seat.model.dto.SeatDto;
-import com.example.sixpark.domain.seat.model.request.CreateSeatRequest;
-import com.example.sixpark.domain.seat.model.request.SelectSeatRequest;
-import com.example.sixpark.domain.seat.model.response.SelectSeatResponse;
+import com.example.sixpark.domain.seat.model.request.SeatCreateRequest;
+import com.example.sixpark.domain.seat.model.request.SeatSelectRequest;
+import com.example.sixpark.domain.seat.model.response.SeatSelectResponse;
 import com.example.sixpark.domain.seat.repository.SeatRepository;
 import com.example.sixpark.domain.showschedule.entiry.ShowSchedule;
 import com.example.sixpark.domain.showschedule.repository.ShowScheduleRepository;
@@ -16,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -30,17 +28,14 @@ public class SeatService {
 
     /**
      * 좌석 생성
-     * @param requestList 스케줄 ID 리스트
+     * @param request 스케줄 ID 범위
      */
-    public void createSeat(List<CreateSeatRequest> requestList) {
-        // 공연 스케줄 id를 Set으로 받아서 중복 제거
-        Set<Long> scheduleIds = requestList.stream()
-                .map(CreateSeatRequest::getScheduleId).collect(Collectors.toSet());
+    public void createSeat(SeatCreateRequest request) {
         // 공연 스케줄 한번에 조회
-        List<ShowSchedule> schedules = showScheduleRepository.findAllById(scheduleIds);
+        List<ShowSchedule> schedules = showScheduleRepository.findAllByRange(request.getStartScheduleId(), request.getEndScheduleId());
 
         // 못 찾은 게 있을 경우 예외 발생
-        if (scheduleIds.size() != schedules.size()) {
+        if (schedules.size() != request.getEndScheduleId() - request.getStartScheduleId() + 1) {
             throw new CustomException(ErrorMessage.NOT_FOUND_SCHEDULE);
         }
 
@@ -63,7 +58,7 @@ public class SeatService {
      * @param request 좌석 선택 요청 DTO (좌석 ID)
      * @return 좌석 선택 응답 DTO (좌석 ID)
      */
-    public SelectSeatResponse selectSeat(SelectSeatRequest request) {
+    public SeatSelectResponse selectSeat(SeatSelectRequest request) {
         // 좌석 조회
         Seat seat = seatRepository.findByIdForLOCK(request.getSeatId()) // 🔒 락 획득
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_SEAT));
@@ -76,13 +71,13 @@ public class SeatService {
 
         seat.select(true); // 좌석 선택
 
-        return SelectSeatResponse.from(SeatDto.from(seat));
+        return SeatSelectResponse.from(SeatDto.from(seat));
     }
 
     /**
      * 좌석 선택, 락 없는 버전
      */
-    public SelectSeatResponse selectSeatNoLock(SelectSeatRequest request) {
+    public SeatSelectResponse selectSeatNoLock(SeatSelectRequest request) {
         // 좌석 조회
         Seat seat = seatRepository.findById(request.getSeatId())
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_SEAT));
@@ -95,6 +90,6 @@ public class SeatService {
 
         seat.select(true); // 좌석 선택
 
-        return SelectSeatResponse.from(SeatDto.from(seat));
+        return SeatSelectResponse.from(SeatDto.from(seat));
     }
 }

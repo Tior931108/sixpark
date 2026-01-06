@@ -6,7 +6,10 @@ import lombok.Getter;
 @Getter
 public class ShowScheduleCreateRequest {
 
-    @NotNull(message = "공연 장소를 선택해주세요.")
-    private Long showPlaceId;
+    @NotNull(message = "startShowPlaceId를 입력해주세요.")
+    private Long startPlaceId;
+
+    @NotNull(message = "endShowPlaceId를 입력해주세요.")
+    private Long endPlaceId;
 
 }

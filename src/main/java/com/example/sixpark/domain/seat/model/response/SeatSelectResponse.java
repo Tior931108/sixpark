@@ -6,12 +6,12 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class SelectSeatResponse {
+public class SeatSelectResponse {
 
     private final Long seatId;
 
-    public static SelectSeatResponse from(SeatDto dto) {
-        return new SelectSeatResponse(
+    public static SeatSelectResponse from(SeatDto dto) {
+        return new SeatSelectResponse(
                 dto.getId()
         );
     }
