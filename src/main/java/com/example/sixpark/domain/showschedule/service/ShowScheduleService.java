@@ -12,11 +12,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -42,11 +42,19 @@ public class ShowScheduleService {
      * @param requestList 공연 장소
      */
     public void createSchedule(List<ShowScheduleCreateRequest> requestList) {
-        for (ShowScheduleCreateRequest request : requestList) { // 공연 장소마다 스케줄 생성
-            // 공연 장소 조회
-            ShowPlace place = showPlaceRepository.findById(request.getShowPlaceId())
-                    .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_SHOW_PLACE));
+        // 공연 장소 id를 Set으로 받아서 중복 제거
+        Set<Long> placeIds = requestList.stream()
+                .map(ShowScheduleCreateRequest::getShowPlaceId).collect(Collectors.toSet());
+        // 공연 장소 한번에 조회
+        List<ShowPlace> places = showPlaceRepository.findAllById(placeIds);
 
+        // 못 찾은 게 있을 경우 예외 발생
+        if (placeIds.size() != places.size()) {
+            throw new CustomException(ErrorMessage.NOT_FOUND_SHOW_PLACE);
+        }
+
+        List<ShowSchedule> schedules = new ArrayList<>();
+        for (ShowPlace place : places) { // 공연 장소마다 스케줄 생성
             // 요일별 공연 시간
             String[] blocks = place.getDtguidance().split(", "); // 예시: [금요일(18:00,20:30), 토요일 ~ 일요일(17:00,19:30)]
             Map<DayOfWeek, List<LocalTime>> map = dayTimeMap(blocks); // 배열 -> Map<요일, 시간 리스트>
@@ -61,12 +69,13 @@ public class ShowScheduleService {
 
                 if (!map.containsKey(day)) continue;
 
-                for (LocalTime time : map.get(day)) {
-                    ShowSchedule schedule = new ShowSchedule(info, place, date, time);
-                    showScheduleRepository.save(schedule);
+                for (LocalTime time : map.get(day)) { // 해당 요일의 공연시간마다 스케줄 저장
+                    schedules.add(new ShowSchedule(info, place, date, time));
                 }
             }
         }
+        // 생성되는 스케줄 한번에 모아서 저장
+        showScheduleRepository.saveAll(schedules);
     }
 
     /**
@@ -84,15 +93,17 @@ public class ShowScheduleService {
             List<LocalTime> times = Arrays.stream(timePart.split(",")).map(LocalTime::parse).toList(); // 시간 리스트
 
             if (dayPart.contains("~")) { // 요일이 범위인 경우
-                DayOfWeek start = DAY_MAP.get(dayPart.substring(0, dayPart.indexOf("~")-1));
-                DayOfWeek end = DAY_MAP.get(dayPart.substring(dayPart.indexOf("~")+1));
-                List<DayOfWeek> days = dayList(start, end);
+                String[] range = dayPart.split("~");
+                DayOfWeek start = DAY_MAP.get(range[0].trim());
+                DayOfWeek end   = DAY_MAP.get(range[1].trim());
+                List<DayOfWeek> days = dayList(start, end); // 사이 요일
 
                 for (DayOfWeek day : days) {
                     map.put(day, times); // 저장
                 }
             } else { // 요일이 하나인 경우
-                map.put(DAY_MAP.get(dayPart), times); // 저장
+                if (DAY_MAP.containsKey(dayPart))
+                    map.put(DAY_MAP.get(dayPart), times); // 저장
             }
         }
         
@@ -109,9 +120,12 @@ public class ShowScheduleService {
     private List<DayOfWeek> dayList(DayOfWeek start, DayOfWeek end) {
         List<DayOfWeek> result = new ArrayList<>();
 
-        for (int i = start.getValue(); i <= end.getValue(); i++) { // 시작요일부터 종료요일까지
-            result.add(DayOfWeek.of(i));
-        }
+        DayOfWeek day = start; // 시작 요일
+        do {
+            result.add(day); // 처음은 무조건 저장
+            day = day.plus(1); // 다음날 요일
+        } while(day != end.plus(1)); // 종료 요일을 지나면 종료
+
         return result;
     }
 
