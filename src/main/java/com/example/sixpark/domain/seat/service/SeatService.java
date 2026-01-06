@@ -60,7 +60,7 @@ public class SeatService {
      */
     public SeatSelectResponse selectSeat(SeatSelectRequest request) {
         // 좌석 조회
-        Seat seat = seatRepository.findByIdForLOCK(request.getSeatId()) // 🔒 락 획득
+        Seat seat = seatRepository.findSeatForLOCK(request.getScheduleId(), request.getSeatNo()) // 🔒 락 획득
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_SEAT));
 
         log.info("{} -> 락 획득 완료", Thread.currentThread().getName());
@@ -79,7 +79,7 @@ public class SeatService {
      */
     public SeatSelectResponse selectSeatNoLock(SeatSelectRequest request) {
         // 좌석 조회
-        Seat seat = seatRepository.findById(request.getSeatId())
+        Seat seat = seatRepository.findSeat(request.getScheduleId(), request.getSeatNo())
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_SEAT));
 
         log.info("{} -> 락 획득 완료", Thread.currentThread().getName());

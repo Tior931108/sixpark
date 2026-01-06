@@ -8,11 +8,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SeatSelectResponse {
 
-    private final Long seatId;
+    private final Long id;
+    private final Long scheduleId;
+    private final int seatNo;
 
     public static SeatSelectResponse from(SeatDto dto) {
         return new SeatSelectResponse(
-                dto.getId()
+                dto.getId(),
+                dto.getShowSchedule().getId(),
+                dto.getSeatNo()
         );
     }
 }
