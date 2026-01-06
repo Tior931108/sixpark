@@ -115,7 +115,7 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
 
     private <T> Slice<T> checkEndPage(List<T> commentList, Pageable pageable) {
         boolean hasNext = false;
-        if(commentList.size()> pageable.getPageSize()){
+        if(commentList.size() > pageable.getPageSize()){
             hasNext = true;
             commentList.remove(pageable.getPageSize());
         }
@@ -130,9 +130,7 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
         return sort.stream()
                 .map(order -> {
                     if ("createdAt".equals(order.getProperty())) {
-                        return order.isAscending()
-                                ? comment.createdAt.asc()
-                                : comment.createdAt.desc();
+                        return order.isAscending() ? comment.createdAt.asc() : comment.createdAt.desc();
                     }
                     return comment.createdAt.desc();
                 })

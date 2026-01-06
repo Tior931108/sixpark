@@ -10,6 +10,7 @@ import com.example.sixpark.domain.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -69,8 +70,8 @@ public class CommentController {
      */
     @GetMapping("/search")
     public ResponseEntity<SliceResponse<CommentParentResponse>> getSearchComment(@RequestParam Long postId, @RequestParam(required = false) String searchKey, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        SliceResponse<CommentParentResponse> response = commentService.getSearchComment(postId, searchKey, pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        Slice<CommentParentResponse> response = commentService.getSearchComment(postId, searchKey, pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(SliceResponse.success("댓글 검색 성공", response));
     }
 
     /**
@@ -81,8 +82,8 @@ public class CommentController {
      */
     @GetMapping
     public ResponseEntity<SliceResponse<CommentParentResponse>> getParentComment(@RequestParam Long postId, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        SliceResponse<CommentParentResponse> response = commentService.getParentComment(postId, pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        Slice<CommentParentResponse> response = commentService.getParentComment(postId, pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(SliceResponse.success("댓글 조회 성공", response));
     }
 
     /**
@@ -94,7 +95,7 @@ public class CommentController {
      */
     @GetMapping("/{parentCommentId}/child-comments")
     public ResponseEntity<SliceResponse<CommentChildResponse>> getChildComment(@PathVariable Long parentCommentId, @RequestParam Long postId, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        SliceResponse<CommentChildResponse> response = commentService.getChildComment(parentCommentId, postId, pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        Slice<CommentChildResponse> response = commentService.getChildComment(parentCommentId, postId, pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(SliceResponse.success("댓글 조회 성공", response));
     }
 }

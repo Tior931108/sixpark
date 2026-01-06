@@ -1,7 +1,6 @@
 package com.example.sixpark.domain.comment.service;
 
 import com.example.sixpark.common.excepion.CustomException;
-import com.example.sixpark.common.response.SliceResponse;
 import com.example.sixpark.domain.comment.entity.Comment;
 import com.example.sixpark.domain.comment.model.dto.CommentChildGetQueryDto;
 import com.example.sixpark.domain.comment.model.dto.CommentDto;
@@ -20,9 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
-
 import static com.example.sixpark.common.enums.ErrorMessage.*;
 
 @Service
@@ -66,8 +63,6 @@ public class CommentService {
 
         return CommentResponse.from(dto, WriterResponse.from(UserDto.from(writer)));
     }
-
-
 
     /**
      * 댓글 수정
@@ -123,12 +118,12 @@ public class CommentService {
      * @return 댓글 검색 결과
      */
     @Transactional(readOnly = true)
-    public SliceResponse<CommentParentResponse> getSearchComment(Long postId, String searchKey, Pageable pageable) {
+    public Slice<CommentParentResponse> getSearchComment(Long postId, String searchKey, Pageable pageable) {
         Post post = getPostByIdOrThrow(postId);
 
         Slice<CommentParentGetQueryDto> commentList = commentRepository.getSearchComments(post.getId(), searchKey, pageable);
 
-        Slice<CommentParentResponse> commentPageList = commentList.map(dto ->
+        return commentList.map(dto ->
                 new CommentParentResponse(
                         dto.getId(),
                         dto.getPostId(),
@@ -143,7 +138,6 @@ public class CommentService {
                         dto.getModifiedAt()
                 )
         );
-        return SliceResponse.success("댓글 검색 조회 성공", commentPageList);
     }
 
     /**
@@ -153,12 +147,12 @@ public class CommentService {
      * @return 부모 조회 결과
      */
     @Transactional(readOnly = true)
-    public SliceResponse<CommentParentResponse> getParentComment(Long postId, Pageable pageable) {
+    public Slice<CommentParentResponse> getParentComment(Long postId, Pageable pageable) {
         Post post = getPostByIdOrThrow(postId);
 
         Slice<CommentParentGetQueryDto> parentCommentList = commentRepository.getParentComment(post.getId(), pageable);
 
-        Slice<CommentParentResponse> parentCommentSliceList = parentCommentList.map(dto ->
+        return parentCommentList.map(dto ->
                 new CommentParentResponse(
                         dto.getId(),
                         dto.getPostId(),
@@ -173,7 +167,6 @@ public class CommentService {
                         dto.getModifiedAt()
                 )
         );
-        return SliceResponse.success("댓글 조회 성공", parentCommentSliceList);
     }
 
     /**
@@ -184,14 +177,14 @@ public class CommentService {
      * @return 자식 조회 결과
      */
     @Transactional(readOnly = true)
-    public SliceResponse<CommentChildResponse> getChildComment(Long parentCommentId, Long postId, Pageable pageable) {
+    public Slice<CommentChildResponse> getChildComment(Long parentCommentId, Long postId, Pageable pageable) {
         Post post = getPostByIdOrThrow(postId);
 
         getCommentByIdOrThrow(parentCommentId);
 
         Slice<CommentChildGetQueryDto> childCommentList = commentRepository.getChildComment(parentCommentId, post.getId(), pageable);
 
-        Slice<CommentChildResponse> childCommentSliceList = childCommentList.map(dto ->
+        return childCommentList.map(dto ->
                 new CommentChildResponse(
                         dto.getId(),
                         dto.getPostId(),
@@ -206,7 +199,6 @@ public class CommentService {
                         dto.getModifiedAt()
                 )
         );
-        return SliceResponse.success("댓글 조회 성공", childCommentSliceList);
     }
 
     /**
@@ -273,6 +265,10 @@ public class CommentService {
         }
     }
 
+    /**
+     * 부모댓글 사라질때 자식 댓글 삭제 모든 다식 댓글 삭제
+     * @param parent 부모 댓글
+     */
     private void deleteChildComments(Comment parent) {
         List<Comment> childComments = commentRepository.findByParentComment_Id(parent.getId());
         childComments.forEach(Comment::softDelete);
