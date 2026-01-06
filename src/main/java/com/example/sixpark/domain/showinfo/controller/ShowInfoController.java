@@ -2,9 +2,11 @@ package com.example.sixpark.domain.showinfo.controller;
 
 import com.example.sixpark.common.response.ApiResponse;
 import com.example.sixpark.common.response.PageResponse;
+import com.example.sixpark.domain.showinfo.model.request.ShowInfoUpdateRequest;
 import com.example.sixpark.domain.showinfo.model.response.ShowInfoDetailResponse;
 import com.example.sixpark.domain.showinfo.model.response.ShowInfoResponse;
 import com.example.sixpark.domain.showinfo.service.ShowInfoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,7 +24,7 @@ public class ShowInfoController {
     private final ShowInfoService showInfoService;
 
     /**
-     * 공연 생성 (KOPIS API 요청)
+     * 공연 생성 (KOPIS API 요청) - (관리자 전용)
      *
      * API 호출시에 필수 파라미터:
      * - stdate: 공연시작일 (YYYYMMDD, 8자리) ex) 20260101
@@ -91,12 +93,32 @@ public class ShowInfoController {
     }
 
     /**
-     * 공연 수정(관리자 권한)
+     * 공연 정보 수정 (관리자 전용)
      */
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/admin/showInfoes/{showInfoId}")
+    public ResponseEntity<ApiResponse<ShowInfoDetailResponse>> updateShowInfo(@PathVariable Long showInfoId, @Valid @RequestBody ShowInfoUpdateRequest request) {
+
+        ShowInfoDetailResponse response = showInfoService.updateShowInfo(showInfoId, request);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success("공연 정보가 수정되었습니다.", response));
+    }
 
     /**
-     * 공연 삭제(관리자 권한)
+     * 공연 삭제 (관리자 전용 - 논리 삭제)
      */
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/admin/showInfoes/{showInfoId}")
+    public ResponseEntity<ApiResponse<Void>> deleteShowInfo(@PathVariable Long showInfoId) {
+
+        showInfoService.deleteShowInfo(showInfoId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success("공연 정보가 삭제되었습니다."));
+    }
 
     /**
      * 공연 장르별 일간 TOP10 조회

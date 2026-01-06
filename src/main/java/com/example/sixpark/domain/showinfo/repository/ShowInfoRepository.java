@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ShowInfoRepository extends JpaRepository<ShowInfo, Long> {
@@ -33,6 +34,20 @@ public interface ShowInfoRepository extends JpaRepository<ShowInfo, Long> {
     // ID로 공연 상세 조회 (Genre Fetch Join)
     @Query("SELECT s FROM ShowInfo s JOIN FETCH s.genre WHERE s.id = :id AND s.isDeleted = false")
     Optional<ShowInfo> findByIdWithGenre(@Param("id") Long id);
+
+    // 공연 상세 정보 조회
+    @Query("SELECT s FROM ShowInfo s " +
+            "LEFT JOIN FETCH s.genre " +
+            "LEFT JOIN FETCH s.showPlace " +
+            "WHERE s.id = :id " +
+            "AND s.isDeleted = false")  // ✅ 삭제된 공연 제외
+    Optional<ShowInfo> findByIdWithDetails(@Param("id") Long id);
+
+    // 목록 조회 시에도 삭제된 공연 제외
+    @Query("SELECT s FROM ShowInfo s " +
+            "WHERE s.isDeleted = false " +
+            "ORDER BY s.id DESC")
+    List<ShowInfo> findAllActive();
 }
 
 
