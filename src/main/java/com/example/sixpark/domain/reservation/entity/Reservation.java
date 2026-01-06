@@ -2,8 +2,6 @@ package com.example.sixpark.domain.reservation.entity;
 
 import com.example.sixpark.common.entity.BaseEntity;
 import com.example.sixpark.domain.seat.entity.Seat;
-import com.example.sixpark.domain.showinfo.entity.ShowInfo;
-import com.example.sixpark.domain.showplace.entity.ShowPlace;
 import com.example.sixpark.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -23,24 +21,21 @@ public class Reservation extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "show_info_id")
-    private ShowInfo showinfo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "show_time_id")
-    private ShowPlace showtime;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "seat_id")
     private Seat seat;
 
-    private int count = 1; // 1인 1티켓
+    private final int count = 1; // 1인 1티켓
 
-    public Reservation(User user, ShowInfo showinfo, ShowPlace showtime, Seat seat) {
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
+    public Reservation(User user, Seat seat) {
         this.user = user;
-        this.showinfo = showinfo;
-        this.showtime = showtime;
         this.seat = seat;
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
     }
 }
