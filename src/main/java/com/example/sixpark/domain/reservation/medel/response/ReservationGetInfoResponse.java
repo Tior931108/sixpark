@@ -3,7 +3,6 @@ package com.example.sixpark.domain.reservation.medel.response;
 import com.example.sixpark.domain.reservation.entity.Reservation;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -22,7 +21,7 @@ public class ReservationGetInfoResponse {
                 reservation.getId(),
                 reservation.getUser().getId(),
                 reservation.getSeat().getId(),
-                reservation.getSeat().getShowPlace().getId(),
+                reservation.getSeat().getShowSchedule().getId(),
                 reservation.getCreatedAt(),
                 reservation.isDeleted()
         );

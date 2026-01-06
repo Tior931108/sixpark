@@ -3,8 +3,7 @@ package com.example.sixpark.domain.reservation.repository;
 import com.example.sixpark.domain.reservation.entity.QReservation;
 import com.example.sixpark.domain.reservation.medel.response.ReservationGetInfoResponse;
 import com.example.sixpark.domain.seat.entity.QSeat;
-import com.example.sixpark.domain.showplace.entity.QShowPlace;
-import com.querydsl.core.BooleanBuilder;
+import com.example.sixpark.domain.showschedule.entiry.QShowSchedule;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 @Repository
 @RequiredArgsConstructor
 public class ReservationCustomRepositoryImpl implements ReservationCustomRepository {
@@ -25,29 +23,24 @@ public class ReservationCustomRepositoryImpl implements ReservationCustomReposit
 
     @Override
     public Page<ReservationGetInfoResponse> findMyReservations(
-            Long userId,
-            Boolean isDeleted,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            Pageable pageable
+            Long userId, Boolean isDeleted, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable
     ) {
         QReservation r = QReservation.reservation;
         QSeat s = QSeat.seat;
-        QShowPlace sp = QShowPlace.showPlace;
+        QShowSchedule ss = QShowSchedule.showSchedule;
 
         List<ReservationGetInfoResponse> content = queryFactory
-                .select(Projections.constructor(
-                        ReservationGetInfoResponse.class,
+                .select(Projections.constructor(ReservationGetInfoResponse.class,
                         r.id,
                         r.user.id,
                         s.id,
-                        sp.id,
+                        ss.id,
                         r.createdAt,
                         r.isDeleted
                 ))
                 .from(r)
                 .join(r.seat, s)
-                .join(s.showPlace, sp)
+                .join(s.showSchedule, ss)
                 .where(
                         userIdEq(userId),
                         isDeletedEq(isDeleted),

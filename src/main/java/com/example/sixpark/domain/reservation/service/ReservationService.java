@@ -17,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -56,27 +55,12 @@ public class ReservationService {
      */
     @Transactional(readOnly = true)
     public Page<ReservationGetInfoResponse> getMyReservations(
-            Long userId,
-            Boolean isDeleted,
-            LocalDate startDate,
-            LocalDate endDate,
-            Pageable pageable
+            Long userId, Boolean isDeleted, LocalDate startDate, LocalDate endDate, Pageable pageable
     ) {
-        LocalDateTime startDateTime = startDate != null
-                ? startDate.atStartOfDay()
-                : null;
+        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = endDate != null ? endDate.atTime(LocalTime.MAX) : null;
 
-        LocalDateTime endDateTime = endDate != null
-                ? endDate.atTime(LocalTime.MAX)
-                : null;
-
-        return reservationRepository.findMyReservations(
-                userId,
-                isDeleted,
-                startDateTime,
-                endDateTime,
-                pageable
-        );
+        return reservationRepository.findMyReservations(userId, isDeleted, startDateTime, endDateTime, pageable);
     }
 
     /**

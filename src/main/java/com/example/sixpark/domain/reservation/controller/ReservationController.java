@@ -9,6 +9,7 @@ import com.example.sixpark.domain.reservation.medel.response.ReservationGetInfoR
 import com.example.sixpark.domain.reservation.service.ReservationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -17,9 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,7 +64,7 @@ public class ReservationController {
      * 예매 상세조회(본인) API 비지니스 로직
      */
     @GetMapping("/book")
-    public PageResponse<ReservationGetInfoResponse> getMyReservations(
+    public ResponseEntity<PageResponse<ReservationGetInfoResponse>> getMyReservations(
             @AuthenticationPrincipal AuthUser authUser,
             @RequestParam(required = false) Boolean status, // true = 취소
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -73,15 +72,16 @@ public class ReservationController {
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        return PageResponse.success(
-                "예매 목록을 조회했습니다.",
-                reservationService.getMyReservations(
-                        authUser.getUserId(),
-                        status,
-                        startDate,
-                        endDate,
-                        pageable
-                )
+        Page<ReservationGetInfoResponse> result = reservationService.getMyReservations(
+                authUser.getUserId(),
+                status,
+                startDate,
+                endDate,
+                pageable
         );
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(PageResponse.success("예매 목록을 조회했습니다.", result));
     }
 }
