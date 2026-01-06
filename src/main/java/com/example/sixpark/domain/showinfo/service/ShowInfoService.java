@@ -3,7 +3,6 @@ package com.example.sixpark.domain.showinfo.service;
 import com.example.sixpark.common.enums.ErrorMessage;
 import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.domain.genre.entity.Genre;
-import com.example.sixpark.domain.genre.repository.GenreRepository;
 import com.example.sixpark.domain.genre.service.GenreService;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
 import com.example.sixpark.domain.showinfo.model.dto.KopisShowInfoDto;
@@ -40,8 +39,8 @@ public class ShowInfoService {
     private final ShowPlaceRepository showPlaceRepository;
     private final ShowPlaceService showPlaceService;
     private final GenreService genreService;
-    private final GenreRepository genreRepository;
     private final KopisApiService kopisApiService;
+    private final ViewCountService viewCountService;
 
     /**
      * 공연 생성 (KOPIS API 요청)
@@ -313,6 +312,15 @@ public class ShowInfoService {
 
         // 공연 시간및 장소 정보 조회 (1:1 관계) - 예외처리 포함
         ShowPlace showPlace = showPlaceService.getShowPlaceById(showInfoId);
+
+        // 삭제여부 확인
+        if (showInfo.isDeleted()) {
+            throw new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO);
+        }
+
+        // 상세 조회시 조회수 증가 - 일간/주간 모두포함
+        viewCountService.incrementDailyView(showInfo.getGenre().getId(), showInfoId);
+        viewCountService.incrementWeeklyView(showInfo.getGenre().getId(), showInfoId);
 
         return ShowInfoDetailResponse.from(ShowInfoDto.from(showInfo), ShowPlaceDto.from(showPlace));
     }

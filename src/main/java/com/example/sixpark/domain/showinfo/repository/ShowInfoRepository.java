@@ -40,7 +40,7 @@ public interface ShowInfoRepository extends JpaRepository<ShowInfo, Long> {
             "LEFT JOIN FETCH s.genre " +
             "LEFT JOIN FETCH s.showPlace " +
             "WHERE s.id = :id " +
-            "AND s.isDeleted = false")  // ✅ 삭제된 공연 제외
+            "AND s.isDeleted = false")  // 삭제된 공연 제외
     Optional<ShowInfo> findByIdWithDetails(@Param("id") Long id);
 
     // 목록 조회 시에도 삭제된 공연 제외
@@ -48,6 +48,19 @@ public interface ShowInfoRepository extends JpaRepository<ShowInfo, Long> {
             "WHERE s.isDeleted = false " +
             "ORDER BY s.id DESC")
     List<ShowInfo> findAllActive();
+
+    // ID 리스트로 ShowInfo 조회 (Genre 포함)
+    @Query("SELECT s FROM ShowInfo s " +
+            "LEFT JOIN FETCH s.genre " +
+            "WHERE s.id IN :ids " +
+            "AND s.isDeleted = false")
+    List<ShowInfo> findByIdInWithGenre(@Param("ids") List<Long> ids);
+
+    // 장르별 모든 ShowInfo ID 조회 (삭제되지 않은 것만)
+    @Query("SELECT s.id FROM ShowInfo s " +
+            "WHERE s.genre.id = :genreId " +
+            "AND s.isDeleted = false")
+    List<Long> findIdsByGenreId(@Param("genreId") Long genreId);
 }
 
 

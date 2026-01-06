@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -47,6 +49,12 @@ public class ShowInfo {
 
     @Column(nullable = false, length = 10)
     private boolean isDeleted = false; // 논리 삭제 여부
+
+    // 조회수 설정 (Redis → DB 동기화용) @Setter 적용
+    // 조회수 (DB 백업용, 기본값 0)
+    @Setter
+    @Column(nullable = false)
+    private Long viewCount = 0L;
 
     @OneToOne(mappedBy = "showInfo", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private ShowPlace showPlace;
@@ -104,4 +112,10 @@ public class ShowInfo {
             this.showPlace.softDelete();
         }
     }
+
+    // 조회수 증가
+    public void incrementViewCount() {
+        this.viewCount++;
+    }
+
 }
