@@ -14,9 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -32,12 +33,19 @@ public class SeatService {
      * @param requestList 스케줄 ID 리스트
      */
     public void createSeat(List<CreateSeatRequest> requestList) {
-        List<Seat> seats = new ArrayList<>();
-        for (CreateSeatRequest request : requestList) {
-            // 스케줄 조회
-            ShowSchedule schedule = showScheduleRepository.findById(request.getScheduleId())
-                    .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_SCHEDULE));
+        // 공연 스케줄 id를 Set으로 받아서 중복 제거
+        Set<Long> scheduleIds = requestList.stream()
+                .map(CreateSeatRequest::getScheduleId).collect(Collectors.toSet());
+        // 공연 스케줄 한번에 조회
+        List<ShowSchedule> schedules = showScheduleRepository.findAllById(scheduleIds);
 
+        // 못 찾은 게 있을 경우 예외 발생
+        if (scheduleIds.size() != schedules.size()) {
+            throw new CustomException(ErrorMessage.NOT_FOUND_SCHEDULE);
+        }
+
+        List<Seat> seats = new ArrayList<>();
+        for (ShowSchedule schedule : schedules) {
             // 좌석이 이미 존재하는지 확인
             if (seatRepository.existsByShowSchedule(schedule)) continue;
 
