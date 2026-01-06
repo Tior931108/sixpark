@@ -28,24 +28,16 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<PostCreateResponse>> createPost(
-            @Valid @RequestBody PostCreateRequest request,
-            @AuthenticationPrincipal AuthUser authUser) {
+    public ResponseEntity<ApiResponse<PostCreateResponse>> createPost(@Valid @RequestBody PostCreateRequest request, @AuthenticationPrincipal AuthUser authUser) {
 
         PostCreateResponse response = postService.createPost(request, authUser);
         return ResponseEntity.ok(ApiResponse.success("게시글이 생성되었습니다", response));
     }
 
     @GetMapping
-    public ResponseEntity<PageResponse<PostGetAllResponse>> getPostList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sort,
-            @RequestParam(defaultValue = "desc") String direction) {
+    public ResponseEntity<PageResponse<PostGetAllResponse>> getPostList(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "createdAt") String sort, @RequestParam(defaultValue = "desc") String direction) {
 
-        Sort.Direction sortDirection = direction.equalsIgnoreCase("asc")
-                ? Sort.Direction.ASC
-                : Sort.Direction.DESC;
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
 
         Page<PostGetAllResponse> posts = postService.getPostList(pageable);
@@ -53,27 +45,21 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<PostGetOneResponse>> getPost(
-            @PathVariable Long postId) {
+    public ResponseEntity<ApiResponse<PostGetOneResponse>> getPost(@PathVariable Long postId) {
 
         PostGetOneResponse response = postService.getPost(postId);
         return ResponseEntity.ok(ApiResponse.success("게시글 조회 성공", response));
     }
 
     @PutMapping("/{postId}")
-    public ResponseEntity<ApiResponse<PostUpdateResponse>> updatePost(
-            @PathVariable Long postId,
-            @Valid @RequestBody PostUpdateRequest request,
-            @AuthenticationPrincipal AuthUser authUser) {
+    public ResponseEntity<ApiResponse<PostUpdateResponse>> updatePost(@PathVariable Long postId, @Valid @RequestBody PostUpdateRequest request, @AuthenticationPrincipal AuthUser authUser) {
 
         PostUpdateResponse response = postService.updatePost(authUser.getUserId(), postId, request);
         return ResponseEntity.ok(ApiResponse.success("게시글이 수정되었습니다.", response));
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<ApiResponse<Void>> deletePost(
-            @PathVariable Long postId,
-            @AuthenticationPrincipal AuthUser authUser) {
+    public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long postId, @AuthenticationPrincipal AuthUser authUser) {
 
         postService.deletePost(authUser.getUserId(), postId);
         return ResponseEntity.ok(ApiResponse.success("게시글이 삭제되었습니다."));
