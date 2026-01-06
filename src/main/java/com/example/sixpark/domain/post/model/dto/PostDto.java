@@ -1,11 +1,8 @@
 package com.example.sixpark.domain.post.model.dto;
 
 import com.example.sixpark.domain.post.entity.Post;
-import com.example.sixpark.domain.showinfo.entity.ShowInfo;
-import com.example.sixpark.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import java.time.LocalDateTime;
 
 @Getter
