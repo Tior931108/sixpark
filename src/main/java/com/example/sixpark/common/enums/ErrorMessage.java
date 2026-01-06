@@ -40,7 +40,10 @@ public enum ErrorMessage {
     NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
     NOT_FOUND_TEAM(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다."),
     NOT_FOUND_TEAM_MEMBER(HttpStatus.NOT_FOUND, "팀 멤버를 찾을 수 없습니다."),
+    NOT_FOUND_SHOW_PLACE(HttpStatus.NOT_FOUND, "공연 장소를 찾을 수 없습니다."),
+    NOT_FOUND_SCHEDULE(HttpStatus.NOT_FOUND, "공연 스케줄을 찾을 수 없습니다."),
     NOT_FOUND_SEAT(HttpStatus.NOT_FOUND, "좌석을 찾을 수 없습니다."),
+    NOT_FOUND_RESERVATION(HttpStatus.NOT_FOUND, "예매 목록을 찾을 수 없습니다."),
     // 409 Conflict : 중복 데이터
     EXIST_EMAIL(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     EXIST_USERNAME(HttpStatus.CONFLICT, "이미 사용 중인 아이디 이름입니다."),
@@ -48,6 +51,7 @@ public enum ErrorMessage {
     EXIST_TEAM_NAME(HttpStatus.CONFLICT, "이미 존재하는 팀 이름입니다."),
     EXIST_TEAM_MEMBER_NOT_DELETE(HttpStatus.CONFLICT, "팀에 멤버가 존재하여 삭제할 수 없습니다."),
     EXIST_TEAM_MEMBER(HttpStatus.CONFLICT, "이미 팀에 속한 멤버입니다."),
+    ALREADY_CANCELED_RESERVATION(HttpStatus.CONFLICT, "이미 취소된 예매입니다.")
     ;
 
     private final HttpStatus status;

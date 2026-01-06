@@ -25,7 +25,8 @@ public class Reservation extends BaseEntity {
     @JoinColumn(name = "seat_id")
     private Seat seat;
 
-    private int count = 1; // 1인 1티켓
+    private final int count = 1; // 1인 1티켓
+    private boolean isDeleted = false;
 
     @Column(nullable = false)
     private boolean isDeleted = false;
