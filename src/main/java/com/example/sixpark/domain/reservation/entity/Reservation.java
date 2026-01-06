@@ -26,7 +26,6 @@ public class Reservation extends BaseEntity {
     private Seat seat;
 
     private final int count = 1; // 1인 1티켓
-    private boolean isDeleted = false;
 
     @Column(nullable = false)
     private boolean isDeleted = false;
