@@ -36,11 +36,29 @@ public class ReservationService {
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_USER));
         // 좌석 조회
         Seat seat = seatRepository.findById(request.getSeatId())
-                .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_USER));
+                .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_RESERVATION));
 
         Reservation reservation = new Reservation(user, seat);
         reservationRepository.save(reservation);
 
         return ReservationCreateResponse.from(ReservationDto.from(reservation));
+    }
+
+    /**
+     * 예매 취소
+     * @param bookId 예매 ID
+     */
+    public void deleteReservation(Long userId, Long bookId) {
+        // 예매 조회
+        Reservation reservation = reservationRepository.findById(bookId)
+                .orElseThrow(()-> new CustomException(ErrorMessage.NOT_DELETE_AUTHORIZED));
+
+        if (reservation.isDeleted()) // 이미 취소된 예매인지 확인
+            throw new CustomException(ErrorMessage.ALREADY_CANCELED_RESERVATION);
+
+        if (reservation.getUser().getId().equals(userId)) // 본인 예매가 맞는지 확인
+            throw new CustomException(ErrorMessage.NOT_FOUND_RESERVATION);
+
+        reservation.softDelete(); // 논리 삭제
     }
 }
