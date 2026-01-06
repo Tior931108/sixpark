@@ -96,6 +96,6 @@ public class CommentController {
     @GetMapping("/{parentCommentId}/child-comments")
     public ResponseEntity<SliceResponse<CommentChildResponse>> getChildComment(@PathVariable Long parentCommentId, @RequestParam Long postId, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<CommentChildResponse> response = commentService.getChildComment(parentCommentId, postId, pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(SliceResponse.success("댓글 조회 성공", response));
+        return ResponseEntity.status(HttpStatus.OK).body(SliceResponse.success("대댓글 조회 성공", response));
     }
 }

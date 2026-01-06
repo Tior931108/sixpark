@@ -208,7 +208,7 @@ public class CommentService {
      */
     private static void invalidParentComment(Comment parent, Post post) {
         // 해당 게시글에 부모 댓글이 없으면 예외처리 발생
-        if(!parent.getPost().getId().equals(post.getId())) {
+        if (!parent.getPost().getId().equals(post.getId())) {
             throw new CustomException(NOT_CORRECT_PARAMETER);
         }
         // 부모 댓글이 삭제되어 있으면 생성안됨
@@ -216,7 +216,7 @@ public class CommentService {
             throw new CustomException(NOT_CORRECT_PARAMETER);
         }
         // 이미 부모 댓글이 있으면 대대댓글은 쓸수없도록 즉 대댓글까지만 가능하도록 예외처리(-> 깊이 1)
-        if(parent.getParentComment() != null) {
+        if (parent.getParentComment() != null) {
             throw new CustomException(NOT_CORRECT_PARAMETER);
         }
     }
@@ -260,7 +260,7 @@ public class CommentService {
      * @param commentUserId 댓글작성자 아이디
      */
     private static void matchedWriter(Long userId, Long commentUserId) {
-        if(!userId.equals(commentUserId)) {
+        if (!userId.equals(commentUserId)) {
             throw new CustomException(NOT_MODIFY_AUTHORIZED);
         }
     }
