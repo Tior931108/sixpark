@@ -6,7 +6,6 @@ import com.example.sixpark.common.enums.UserRole;
 import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.common.security.jwt.JwtProvider;
 import com.example.sixpark.common.security.tokenRepository.TokenBlackListRepository;
-import com.example.sixpark.common.security.userDetail.AuthUser;
 import com.example.sixpark.domain.user.entity.User;
 import com.example.sixpark.domain.user.model.dto.UserDto;
 import com.example.sixpark.domain.user.model.request.UserSignupRequest;
@@ -47,13 +46,7 @@ public class AuthUesrService {
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         // User 생성 (role은 USER 고정)
-        User user = new User(
-                request.getEmail(),
-                encodedPassword,
-                request.getName(),
-                request.getNickname(),
-                request.getBirth()
-        );
+        User user = new User(request.getEmail(), encodedPassword, request.getName(), request.getNickname(), request.getBirth());
 
         userRepository.save(user);
 
@@ -71,12 +64,7 @@ public class AuthUesrService {
             return;
         }
 
-        tokenBlacklistRepository.save(
-                new TokenBlackList(
-                        token,
-                        jwtProvider.getExpiration(token)
-                )
-        );
+        tokenBlacklistRepository.save(new TokenBlackList(token, jwtProvider.getExpiration(token)));
     }
 
     /**
@@ -99,24 +87,12 @@ public class AuthUesrService {
         user.changeRole(newRole);
     }
 
-
-    /**
-     * ADMIN 권한 여부 메서드
-     */
-    private void validateAdmin(AuthUser user) {
-        if (user.getRole() != UserRole.ADMIN) {
-            throw new CustomException(ErrorMessage.ONLY_OWNER_ACCESS);
-        }
-    }
-
     /**
      * 공통 사용자 조회 메서드
      */
     private User getUserByIdOrThrow(Long userId) {
         return userRepository.findById(userId)
                 .filter(user -> !user.isDeleted())
-                .orElseThrow(() ->
-                        new CustomException(ErrorMessage.NOT_FOUND_USER)
-                );
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_USER));
     }
 }

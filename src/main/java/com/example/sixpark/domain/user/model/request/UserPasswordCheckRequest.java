@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 public class UserPasswordCheckRequest {
 
-    @NotBlank(message = "비밀번호는 필수입니다.")
+    @NotBlank(message = "비밀번호를 입력해주세요.")
     private String password;
 }

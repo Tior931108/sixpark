@@ -9,7 +9,6 @@ import com.example.sixpark.domain.user.model.request.UserUpdateRequest;
 import com.example.sixpark.domain.user.model.response.UserGetResponse;
 import com.example.sixpark.domain.user.model.response.UserUpdateResponse;
 import com.example.sixpark.domain.user.repository.UserRepository;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -104,9 +103,7 @@ public class UserService {
     private User getUserByIdOrThrow(Long userId) {
         return userRepository.findById(userId)
                 .filter(user -> !user.isDeleted())
-                .orElseThrow(() ->
-                        new CustomException(ErrorMessage.NOT_FOUND_USER)
-                );
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_USER));
     }
 
 }

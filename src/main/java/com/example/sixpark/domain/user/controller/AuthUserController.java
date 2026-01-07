@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class AuthUserController {
 
     private final AuthUesrService authUesrService;
@@ -35,7 +36,7 @@ public class AuthUserController {
     /**
      * 회원가입 API
      */
-    @PostMapping("/api/auth/signup")
+    @PostMapping("/auth/signup")
     public ResponseEntity<ApiResponse<UserSignupResponse>> signup(@RequestBody @Valid UserSignupRequest request) {
         return ResponseEntity.ok(ApiResponse.success("회원가입이 완료되었습니다.", authUesrService.signup(request)));
     }
@@ -43,14 +44,10 @@ public class AuthUserController {
     /**
      * 로그인 API
      */
-    @PostMapping("/api/auth/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<ApiResponse<UserLoginResponse>> login(@RequestBody @Valid UserLoginRequest request) {
         // 이메일 + 비밀번호로 Authentication 객체 생성
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                );
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
 
         // Spring Security 인증 처리
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
@@ -60,10 +57,7 @@ public class AuthUserController {
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
 
         // JWT Access Token 생성
-        String accessToken = jwtProvider.createToken(
-                authUser.getUserId(),          // userId
-                authUser.getRole()   // USER / ADMIN
-        );
+        String accessToken = jwtProvider.createToken(authUser.getUserId(),authUser.getRole());
 
         // 응답 반환
         return ResponseEntity.ok(ApiResponse.success("로그인 성공", UserLoginResponse.from(accessToken)));
@@ -72,7 +66,7 @@ public class AuthUserController {
     /**
      * 로그아웃 API
      */
-    @PostMapping("/api/auth/logout")
+    @PostMapping("/auth/logout")
     public ResponseEntity<ApiResponse<Void>> logout(@RequestHeader("Authorization") String authorizationHeader) {
         String token = authorizationHeader.replace("Bearer ", "");
         authUesrService.logout(token);
@@ -84,7 +78,7 @@ public class AuthUserController {
      * 관리자 권한 유저 전체 페이징 조회 API
      */
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/api/admin")
+    @GetMapping("/admin")
     public ResponseEntity<PageResponse<UserDto>> getAllUsers(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<UserDto> page = authUesrService.getAllUsers(pageable);
 
@@ -95,7 +89,7 @@ public class AuthUserController {
      * 관리자 권한 유저 권한 변경 API
      */
     @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/api/admin/users/{userId}")
+    @PatchMapping("/admin/users/{userId}")
     public ResponseEntity<ApiResponse<Void>> changeUserRole(@PathVariable Long userId, @RequestBody UserRoleChangeRequest request) {
         authUesrService.changeUserRole(userId, request.getRole());
         return ResponseEntity.ok(ApiResponse.success("권한이 변경되었습니다."));

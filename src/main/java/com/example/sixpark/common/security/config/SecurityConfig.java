@@ -42,8 +42,7 @@ public class SecurityConfig {
      * - login API에서 authenticate() 호출 시 사용
      */
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration configuration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
@@ -54,8 +53,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        JwtAuthenticationFilter jwtAuthenticationFilter =
-                new JwtAuthenticationFilter(jwtProvider, tokenBlackListRepository);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtProvider, tokenBlackListRepository);
         http
                 // JWT 기반 인증 → CSRF 불필요
                 .csrf(csrf -> csrf.disable())

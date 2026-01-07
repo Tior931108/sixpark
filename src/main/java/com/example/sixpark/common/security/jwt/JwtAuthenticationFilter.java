@@ -25,11 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final TokenBlackListRepository tokenBlackListRepository;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         // Authorization 헤더에서 토큰 추출
         String token = resolveToken(request);
@@ -50,20 +46,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserRole userRole = UserRole.valueOf(role);
 
             // AuthUser 직접 생성 (DB 조회 안함)
-            AuthUser authUser = new AuthUser(
-                    userId,
-                    null,
-                    null,
-                    userRole
-            );
+            AuthUser authUser = new AuthUser(userId, null, null, userRole);
 
             // Authentication 객체 생성
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            authUser,
-                            null,
-                            authUser.getAuthorities()
-                    );
+                    new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities());
 
             // SecurityContext에 저장
             SecurityContextHolder.getContext().setAuthentication(authentication);
