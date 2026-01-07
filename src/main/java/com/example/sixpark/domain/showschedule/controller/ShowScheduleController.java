@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -22,10 +20,15 @@ public class ShowScheduleController {
 
     private final ShowScheduleService showScheduleService;
 
+    /**
+     * 스케줄 생성
+     * @param request 공연 장소 id 범위
+     * @return 201 CREATED
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/show-schedule")
     public ResponseEntity<ApiResponse<Void>> createSchedule(
-            @Valid @RequestBody List<ShowScheduleCreateRequest> request
+            @Valid @RequestBody ShowScheduleCreateRequest request
     ) {
         showScheduleService.createSchedule(request);
 

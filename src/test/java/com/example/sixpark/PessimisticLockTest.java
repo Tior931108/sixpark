@@ -3,7 +3,7 @@ package com.example.sixpark;
 import com.example.sixpark.domain.genre.entity.Genre;
 import com.example.sixpark.domain.genre.repository.GenreRepository;
 import com.example.sixpark.domain.seat.entity.Seat;
-import com.example.sixpark.domain.seat.model.request.SelectSeatRequest;
+import com.example.sixpark.domain.seat.model.request.SeatSelectRequest;
 import com.example.sixpark.domain.seat.repository.SeatRepository;
 import com.example.sixpark.domain.seat.service.SeatService;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
@@ -52,7 +52,7 @@ class PessimisticLockTest {
 
         Runnable task = () -> {
             try {
-                SelectSeatRequest request = new SelectSeatRequest();
+                SeatSelectRequest request = new SeatSelectRequest();
                 ReflectionTestUtils.setField(request, "seatId", 1L);
 
                 seatService.selectSeat(request);
@@ -76,7 +76,7 @@ class PessimisticLockTest {
 
         Runnable task = () -> {
             try {
-                SelectSeatRequest request = new SelectSeatRequest();
+                SeatSelectRequest request = new SeatSelectRequest();
                 ReflectionTestUtils.setField(request, "seatId", 1L);
 
                 seatService.selectSeatNoLock(request);

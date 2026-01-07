@@ -16,7 +16,7 @@ public class Seat {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "show_place_id")
-    private ShowSchedule showSchedule; // 공연 장소 정보
+    private ShowSchedule showSchedule; // 공연 스케줄 정보
 
     @Column(nullable = false)
     private int seatNo; // 좌석번호
