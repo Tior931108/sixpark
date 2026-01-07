@@ -39,8 +39,7 @@ public class ViewCountSyncService {
         log.info("=== 조회수 동기화 시작 ===");
 
         // 락 획득 시도 (10초 타임아웃, 5분 유지)
-        Boolean lockAcquired = redisTemplate.opsForValue()
-                .setIfAbsent(SYNC_LOCK_KEY, "locked", 5, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().setIfAbsent(SYNC_LOCK_KEY, "locked", 5, TimeUnit.MINUTES);
 
         try {
             // 오늘 날짜
@@ -75,8 +74,7 @@ public class ViewCountSyncService {
         String key = DAILY_VIEW_KEY_PREFIX + genreId + ":" + date;
 
         // Redis ZSet에서 모든 데이터 조회
-        Set<ZSetOperations.TypedTuple<Object>> allViews =
-                redisTemplate.opsForZSet().rangeWithScores(key, 0, -1);
+        Set<ZSetOperations.TypedTuple<Object>> allViews = redisTemplate.opsForZSet().rangeWithScores(key, 0, -1);
 
         if (allViews == null || allViews.isEmpty()) {
             return;

@@ -2,7 +2,6 @@ package com.example.sixpark.domain.showplace.service;
 
 import com.example.sixpark.common.enums.ErrorMessage;
 import com.example.sixpark.common.excepion.CustomException;
-import com.example.sixpark.domain.genre.entity.Genre;
 import com.example.sixpark.domain.showplace.entity.ShowPlace;
 import com.example.sixpark.domain.showplace.repository.ShowPlaceRepository;
 import lombok.RequiredArgsConstructor;
