@@ -45,7 +45,7 @@ public class SeatController {
     public ResponseEntity<ApiResponse<SeatSelectResponse>> selectSeat(
             @Valid @RequestBody SeatSelectRequest request
     ) {
-        SeatSelectResponse result = seatService.selectSeat(request);
+        SeatSelectResponse result = seatService.selectSeatRedisLock(request);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

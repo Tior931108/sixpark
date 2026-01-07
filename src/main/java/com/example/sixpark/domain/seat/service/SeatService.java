@@ -10,6 +10,7 @@ import com.example.sixpark.domain.seat.model.response.SeatSelectResponse;
 import com.example.sixpark.domain.seat.repository.SeatRepository;
 import com.example.sixpark.domain.showschedule.entiry.ShowSchedule;
 import com.example.sixpark.domain.showschedule.repository.ShowScheduleRepository;
+import com.example.sixpark.lock.LockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class SeatService {
 
     private final SeatRepository seatRepository;
     private final ShowScheduleRepository showScheduleRepository;
+    private final LockService lockService;
 
     /**
      * 좌석 생성
@@ -54,11 +56,27 @@ public class SeatService {
     }
 
     /**
-     * 좌석 선택
-     * @param request 좌석 선택 요청 DTO (좌석 ID)
-     * @return 좌석 선택 응답 DTO (좌석 ID)
+     * 좌석 선택, redis 락 구현
      */
-    public SeatSelectResponse selectSeat(SeatSelectRequest request) {
+    public SeatSelectResponse selectSeatRedisLock(SeatSelectRequest request) {
+        // 좌석 조회
+        Seat seat = seatRepository.findSeat(request.getScheduleId(), request.getSeatNo())
+                .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_SEAT));
+
+        return lockService.executeWithLock("lock:seat:" + seat.getId(),
+                () -> {
+                    // 이미 선택된 좌석인지 확인
+                    if (seat.isSelected()) throw new CustomException(ErrorMessage.SEAT_ALREADY_SELECTED);
+
+                    seat.select(true);
+                    return SeatSelectResponse.from(SeatDto.from(seat));
+                });
+    }
+
+    /**
+     * 좌석 선택, 비관적 락 구현
+     */
+    public void selectSeatLOCK(SeatSelectRequest request) {
         // 좌석 조회
         Seat seat = seatRepository.findSeatForLOCK(request.getScheduleId(), request.getSeatNo()) // 🔒 락 획득
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_SEAT));
@@ -70,14 +88,12 @@ public class SeatService {
         if (seat.isSelected()) throw new CustomException(ErrorMessage.SEAT_ALREADY_SELECTED);
 
         seat.select(true); // 좌석 선택
-
-        return SeatSelectResponse.from(SeatDto.from(seat));
     }
 
     /**
      * 좌석 선택, 락 없는 버전
      */
-    public SeatSelectResponse selectSeatNoLock(SeatSelectRequest request) {
+    public void selectSeatNoLock(SeatSelectRequest request) {
         // 좌석 조회
         Seat seat = seatRepository.findSeat(request.getScheduleId(), request.getSeatNo())
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_SEAT));
@@ -89,7 +105,5 @@ public class SeatService {
         if (seat.isSelected()) throw new CustomException(ErrorMessage.SEAT_ALREADY_SELECTED);
 
         seat.select(true); // 좌석 선택
-
-        return SeatSelectResponse.from(SeatDto.from(seat));
     }
 }

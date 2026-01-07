@@ -55,7 +55,7 @@ class PessimisticLockTest {
                 SeatSelectRequest request = new SeatSelectRequest();
                 ReflectionTestUtils.setField(request, "seatId", 1L);
 
-                seatService.selectSeat(request);
+                seatService.selectSeatLOCK(request);
                 successCount.incrementAndGet(); // 성공 카운트
             } catch (Exception e) {
                 System.out.println(Thread.currentThread().getName() + " 실패: " + e.getMessage());
