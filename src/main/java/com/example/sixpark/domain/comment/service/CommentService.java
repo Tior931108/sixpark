@@ -260,7 +260,7 @@ public class CommentService {
     }
 
     /**
-     * 부모댓글 사라질때 자식 댓글 삭제 모든 다식 댓글 삭제
+     * 부모댓글 사라질때 자식 댓글 삭제 모든 자식 댓글 삭제
      * @param parent 부모 댓글
      */
     private void deleteChildComments(Comment parent) {
