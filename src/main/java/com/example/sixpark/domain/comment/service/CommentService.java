@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -32,7 +33,7 @@ public class CommentService {
 
     /**
      * 댓글 생성
-     * @param userId 로그인한 유저의 아이디
+     * @param userId  로그인한 유저의 아이디
      * @param request 댓글 생성 요청 DTO
      *                - parentId가 null이면 일반 댓글 생성
      *                - parentId가 있으면 대댓글 생성
@@ -50,25 +51,18 @@ public class CommentService {
             parent.addChildComments();
         }
 
-        Comment comment = new Comment(
-                request.getContent(),
-                post,
-                writer,
-                parent
-        );
+        Comment comment = new Comment(request.getContent(), post, writer, parent);
 
         commentRepository.save(comment);
 
-        CommentDto dto = CommentDto.from(comment);
-
-        return CommentResponse.from(dto, WriterResponse.from(UserDto.from(writer)));
+        return CommentResponse.from(CommentDto.from(comment), WriterResponse.from(UserDto.from(writer)));
     }
 
     /**
      * 댓글 수정
-     * @param userId 로그인한 유저의 아이디
+     * @param userId    로그인한 유저의 아이디
      * @param commentId 댓글 아이디
-     * @param request 댓글 수정 요청 DTO
+     * @param request   댓글 수정 요청 DTO
      * @return 댓글 수정 결과
      */
     @Transactional
@@ -81,14 +75,12 @@ public class CommentService {
         comment.update(request.getContent());
         commentRepository.save(comment);
 
-        CommentDto dto = CommentDto.from(comment);
-
-        return CommentResponse.from(dto, WriterResponse.from(UserDto.from(writer)));
+        return CommentResponse.from(CommentDto.from(comment), WriterResponse.from(UserDto.from(writer)));
     }
 
     /**
      * 댓글 삭제
-     * @param userId 유저 아이디
+     * @param userId    유저 아이디
      * @param commentId 댓글 아이디
      */
     @Transactional
@@ -112,9 +104,9 @@ public class CommentService {
 
     /**
      * 댓글 검색
-     * @param postId 게시글 id
+     * @param postId    게시글 id
      * @param searchKey 검색어
-     * @param pageable 페이징
+     * @param pageable  페이징
      * @return 댓글 검색 결과
      */
     @Transactional(readOnly = true)
@@ -123,26 +115,12 @@ public class CommentService {
 
         Slice<CommentParentGetQueryDto> commentList = commentRepository.getSearchComments(post.getId(), searchKey, pageable);
 
-        return commentList.map(dto ->
-                new CommentParentResponse(
-                        dto.getId(),
-                        dto.getPostId(),
-                        dto.getWriterId(),
-                        new WriterResponse(
-                                dto.getWriterId(),
-                                dto.getNickname()
-                        ),
-                        dto.getContent(),
-                        dto.getChildCommentCount(),
-                        dto.getCreatedAt(),
-                        dto.getModifiedAt()
-                )
-        );
+        return commentList.map(dto -> new CommentParentResponse(dto.getId(), dto.getPostId(), dto.getWriterId(), new WriterResponse(dto.getWriterId(), dto.getNickname()), dto.getContent(), dto.getChildCommentCount(), dto.getCreatedAt(), dto.getModifiedAt()));
     }
 
     /**
      * 부모 댓글 조회
-     * @param postId 게시글 id
+     * @param postId   게시글 id
      * @param pageable 페이징(slice)
      * @return 부모 조회 결과
      */
@@ -152,28 +130,14 @@ public class CommentService {
 
         Slice<CommentParentGetQueryDto> parentCommentList = commentRepository.getParentComment(post.getId(), pageable);
 
-        return parentCommentList.map(dto ->
-                new CommentParentResponse(
-                        dto.getId(),
-                        dto.getPostId(),
-                        dto.getWriterId(),
-                        new WriterResponse(
-                                dto.getWriterId(),
-                                dto.getNickname()
-                        ),
-                        dto.getContent(),
-                        dto.getChildCommentCount(),
-                        dto.getCreatedAt(),
-                        dto.getModifiedAt()
-                )
-        );
+        return parentCommentList.map(dto -> new CommentParentResponse(dto.getId(), dto.getPostId(), dto.getWriterId(), new WriterResponse(dto.getWriterId(), dto.getNickname()), dto.getContent(), dto.getChildCommentCount(), dto.getCreatedAt(), dto.getModifiedAt()));
     }
 
     /**
      * 자식 댓글 조회
      * @param parentCommentId 부모 댓글 id
-     * @param postId 게시글 id
-     * @param pageable 페이징(slice)
+     * @param postId          게시글 id
+     * @param pageable        페이징(slice)
      * @return 자식 조회 결과
      */
     @Transactional(readOnly = true)
@@ -184,27 +148,13 @@ public class CommentService {
 
         Slice<CommentChildGetQueryDto> childCommentList = commentRepository.getChildComment(parentCommentId, post.getId(), pageable);
 
-        return childCommentList.map(dto ->
-                new CommentChildResponse(
-                        dto.getId(),
-                        dto.getPostId(),
-                        dto.getWriterId(),
-                        new WriterResponse(
-                                dto.getWriterId(),
-                                dto.getNickname()
-                        ),
-                        dto.getContent(),
-                        dto.getParentId(),
-                        dto.getCreatedAt(),
-                        dto.getModifiedAt()
-                )
-        );
+        return childCommentList.map(dto -> new CommentChildResponse(dto.getId(), dto.getPostId(), dto.getWriterId(), new WriterResponse(dto.getWriterId(), dto.getNickname()), dto.getContent(), dto.getParentId(), dto.getCreatedAt(), dto.getModifiedAt()));
     }
 
     /**
      * 부모 댓글 검증
      * @param parent 부모 댓글
-     * @param post 댓글 작성 게시글
+     * @param post   댓글 작성 게시글
      */
     private static void invalidParentComment(Comment parent, Post post) {
         // 해당 게시글에 부모 댓글이 없으면 예외처리 발생
@@ -227,7 +177,8 @@ public class CommentService {
      * @return 조회된 유저 엔티티
      */
     private User getUserByIdOrThrow(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_USER));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_USER));
     }
 
     /**
@@ -236,7 +187,8 @@ public class CommentService {
      * @return 조회된 게시글 엔티티
      */
     private Post getPostByIdOrThrow(Long postId) {
-        return postRepository.findById(postId).orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_POST));
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_POST));
     }
 
     /**
@@ -245,12 +197,13 @@ public class CommentService {
      * @return 조회된 댓글 엔티티
      */
     private Comment getCommentByIdOrThrow(Long commentId) {
-        return commentRepository.findById(commentId).orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_COMMENT));
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_COMMENT));
     }
 
     /**
      * 작성자가 일치하지 않으면 예외 발생
-     * @param userId 유저 아이디
+     * @param userId        유저 아이디
      * @param commentUserId 댓글작성자 아이디
      */
     private static void matchedWriter(Long userId, Long commentUserId) {
