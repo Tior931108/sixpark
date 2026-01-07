@@ -1,5 +1,7 @@
 package com.example.sixpark.domain.genre.service;
 
+import com.example.sixpark.common.enums.ErrorMessage;
+import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.domain.genre.entity.Genre;
 import com.example.sixpark.domain.genre.repository.GenreRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +29,13 @@ public class GenreService {
                     log.info("새로운 장르 생성: {} (ID: {})", genrenm, savedGenre.getId());
                     return savedGenre;
                 });
+    }
+
+    /**
+     * 장르 ID로 조회 (예외 처리 포함)
+     */
+    public Genre getGenreById(Long genreId) {
+        return genreRepository.findById(genreId)
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_GENRE));
     }
 }
