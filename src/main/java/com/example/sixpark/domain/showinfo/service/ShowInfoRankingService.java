@@ -32,6 +32,37 @@ public class ShowInfoRankingService {
             return Collections.emptyList();
         }
 
+        // 랭킹 응답 공통 메소드
+        List<ShowInfoRankingResponse> responses = getShowInfoRankingResponses(topSet);
+
+        log.info("일간 TOP10 조회 완료: genreId={}, count={}", genreId, responses.size());
+        return responses;
+    }
+
+    /**
+     * 장르별 주간 TOP10 조회
+     */
+    @Transactional(readOnly = true)
+    public List<ShowInfoRankingResponse> getWeeklyTop10(Long genreId) {
+        // Redis에서 TOP10 조회 (조회수 포함)
+        Set<ZSetOperations.TypedTuple<Object>> topSet = viewCountService.getWeeklyTopN(genreId, 10);
+
+        if (topSet == null || topSet.isEmpty()) {
+            log.info("주간 조회수 데이터 없음: genreId={}", genreId);
+            return Collections.emptyList();
+        }
+
+        // 랭킹 응답 공통 메소드
+        List<ShowInfoRankingResponse> responses = getShowInfoRankingResponses(topSet);
+
+        log.info("주간 TOP10 조회 완료: genreId={}, count={}", genreId, responses.size());
+        return responses;
+    }
+
+    /**
+     * redis > ShowInfo ID 추출 및 랭킹 응답 공통 메소드
+     */
+    private List<ShowInfoRankingResponse> getShowInfoRankingResponses(Set<ZSetOperations.TypedTuple<Object>> topSet) {
         // ShowInfo ID 추출
         List<Long> showInfoIds = topSet.stream()
                 .map(tuple -> Long.parseLong(tuple.getValue().toString()))
@@ -57,53 +88,9 @@ public class ShowInfoRankingService {
                 responses.add(new ShowInfoRankingResponse(showInfo, viewCount, rank++));
             }
         }
-
-        log.info("일간 TOP10 조회 완료: genreId={}, count={}", genreId, responses.size());
         return responses;
     }
-
-    /**
-     * 장르별 주간 TOP10 조회
-     */
-    @Transactional(readOnly = true)
-    public List<ShowInfoRankingResponse> getWeeklyTop10(Long genreId) {
-        // Redis에서 TOP10 조회 (조회수 포함)
-        Set<ZSetOperations.TypedTuple<Object>> topSet = viewCountService.getWeeklyTopN(genreId, 10);
-
-        if (topSet == null || topSet.isEmpty()) {
-            log.info("주간 조회수 데이터 없음: genreId={}", genreId);
-            return Collections.emptyList();
-        }
-
-        // ShowInfo ID 추출
-        List<Long> showInfoIds = topSet.stream()
-                .map(tuple -> Long.parseLong(tuple.getValue().toString()))
-                .collect(Collectors.toList());
-
-        // DB에서 ShowInfo 조회
-        List<ShowInfo> showInfos = showInfoRepository.findByIdInWithGenre(showInfoIds);
-
-        // Map으로 변환
-        Map<Long, ShowInfo> showInfoMap = showInfos.stream()
-                .collect(Collectors.toMap(ShowInfo::getId, si -> si));
-
-        // Response 생성 (순위 유지)
-        List<ShowInfoRankingResponse> responses = new ArrayList<>();
-        int rank = 1;
-
-        for (ZSetOperations.TypedTuple<Object> tuple : topSet) {
-            Long showInfoId = Long.parseLong(tuple.getValue().toString());
-            Long viewCount = tuple.getScore().longValue();
-
-            ShowInfo showInfo = showInfoMap.get(showInfoId);
-            if (showInfo != null) {
-                responses.add(new ShowInfoRankingResponse(showInfo, viewCount, rank++));
-            }
-        }
-
-        log.info("주간 TOP10 조회 완료: genreId={}, count={}", genreId, responses.size());
-        return responses;
-    }
+    
 
     /**
      * 테스트용 랜덤 조회수 생성

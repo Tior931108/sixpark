@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class UserController {
 
     private final UserService userService;
@@ -21,7 +22,7 @@ public class UserController {
     /**
      * 내 정보 조회 API
      */
-    @GetMapping("/api/users")
+    @GetMapping("/users")
     public ResponseEntity<ApiResponse<UserGetResponse>> getMyInfo(@AuthenticationPrincipal AuthUser user) {
         return ResponseEntity.ok(ApiResponse.success("내 정보 조회 성공", (userService.getMyInfo(user.getUserId()))));
     }
@@ -29,7 +30,7 @@ public class UserController {
     /**
      * 유저 정보 수정 API
      */
-    @PutMapping("/api/users")
+    @PutMapping("/users")
     public ResponseEntity<ApiResponse<UserUpdateResponse>> updateMyInfo(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid UserUpdateRequest request) {
         return ResponseEntity.ok(ApiResponse.success("회원정보 수정 완료", userService.updateMyInfo(authUser.getUserId(), request)));
     }
@@ -37,7 +38,7 @@ public class UserController {
     /**
      * 비밀번호 변경 API
      */
-    @PutMapping("/api/users/password")
+    @PutMapping("/users/password")
     public ResponseEntity<ApiResponse<Void>> changePassword(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid UserPasswordChangeRequest request) {
         userService.changePassword(authUser.getUserId(), request);
         return ResponseEntity.ok(ApiResponse.success("비밀번호 변경 완료"));
@@ -46,7 +47,7 @@ public class UserController {
     /**
      * 비밀번호 확인 API
      */
-    @PostMapping("/api/users/verify-password")
+    @PostMapping("/users/verify-password")
     public ResponseEntity<ApiResponse<Void>> checkPassword(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid UserPasswordCheckRequest request) {
         userService.checkPassword(authUser.getUserId(), request.getPassword());
         return ResponseEntity.ok(ApiResponse.success("비밀번호가 확인되었습니다."));
@@ -55,7 +56,7 @@ public class UserController {
     /**
      * 회원 탈퇴 API
      */
-    @DeleteMapping("/api/users")
+    @DeleteMapping("/users")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@AuthenticationPrincipal AuthUser authUser, @RequestHeader("Authorization") String authorizationHeader) {
         String accessToken = authorizationHeader.replace("Bearer ", "");
         userService.deleteUser(authUser.getUserId(), accessToken);

@@ -7,8 +7,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface ShowInfoCustomRepository {
 
-    /**
-     * v2: QueryDSL 동적 쿼리 검색
-     */
+    // v2: QueryDSL 동적 쿼리 검색
     Page<ShowInfo> searchShowInfosV2(ShowInfoSearchRequest request, Pageable pageable);
 }

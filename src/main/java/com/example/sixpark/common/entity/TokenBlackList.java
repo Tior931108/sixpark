@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "token_blackList")
+@Table(name = "token_blackList", indexes = {@Index(name = "idx_token_blackList", columnList = "token")})
 public class TokenBlackList {
 
     @Id
