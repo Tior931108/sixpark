@@ -40,10 +40,11 @@ public class SeatService {
             throw new CustomException(ErrorMessage.NOT_FOUND_SCHEDULE);
         }
 
+        List<Long> scheduleIds = schedules.stream().map(ShowSchedule::getId).toList();
+        List<Long> existScheduleIds = seatRepository.findExistScheduleIds(scheduleIds); // 이미 좌석을 생성한 스케줄 ID 리스트
         List<Seat> seats = new ArrayList<>();
         for (ShowSchedule schedule : schedules) {
-            // 좌석이 이미 존재하는지 확인
-            if (seatRepository.existsByShowSchedule(schedule)) {
+            if (existScheduleIds.contains(schedule.getId())) { // 이미 좌석을 생성한 스케줄인지 확인
                 continue;
             }
 
