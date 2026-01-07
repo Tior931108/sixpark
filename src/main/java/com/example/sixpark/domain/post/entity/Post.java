@@ -32,7 +32,7 @@ public class Post extends BaseEntity {
     @Size(min = 1, max = 30)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Column(nullable = false)
@@ -57,5 +57,4 @@ public class Post extends BaseEntity {
     public void softDelete() {
         this.isDeleted = true;
     }
-
 }
