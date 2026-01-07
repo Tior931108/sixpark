@@ -61,11 +61,9 @@ public class ShowInfoController {
     @GetMapping("/genre/{genreId}/showInfoes")
     public ResponseEntity<PageResponse<ShowInfoResponse>> getAllShowInfos(@PathVariable Long genreId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "DESC") String direction) {
 
-        log.info("공연 전체 조회 요청: page={}, size={}, sortBy={}, direction={}",
-                page, size, sortBy, direction);
+        log.info("공연 전체 조회 요청: page={}, size={}, sortBy={}, direction={}", page, size, sortBy, direction);
 
-        Page<ShowInfoResponse> infoResponses = showInfoService.getAllShowInfos(
-                genreId, page, size, sortBy, direction);
+        Page<ShowInfoResponse> infoResponses = showInfoService.getAllShowInfos(genreId, page, size, sortBy, direction);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -119,12 +117,4 @@ public class ShowInfoController {
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success("공연 정보가 삭제되었습니다."));
     }
-
-    /**
-     * 공연 장르별 일간 TOP10 조회
-     */
-
-    /**
-     * 공연 장르별 주간 TOP10 조회
-     */
 }

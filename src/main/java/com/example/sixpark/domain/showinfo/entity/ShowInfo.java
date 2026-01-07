@@ -14,7 +14,8 @@ import java.util.Optional;
 
 @Entity
 @Getter
-@Table(name = "show_infoes")
+// 검색 성능 개선 인덱스 적용 - v2 전용
+@Table(name = "show_infoes" , indexes = {@Index(name = "idx_show_infos_prfnm", columnList = "prfnm"), @Index(name = "idx_show_infos_prfcast", columnList = "prfcast")})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShowInfo {
 

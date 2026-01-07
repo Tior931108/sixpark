@@ -15,11 +15,6 @@ public interface ShowPlaceRepository extends JpaRepository<ShowPlace, Long> {
     @Query("SELECT s FROM ShowPlace s WHERE s.showInfo.id = :showInfoId")
     Optional<ShowPlace> findByShowInfoId(@Param("showInfoId") Long showInfoId);
 
-    // ShowInfo ID로 ShowPlace 삭제
-    @Modifying
-    @Query("DELETE FROM ShowPlace st WHERE st.showInfo.id = :showInfoId")
-    void deleteByShowInfoId(@Param("showInfoId") Long showInfoId);
-
     // 범위로 ShowPlace 조회
     @Query("SELECT sp FROM ShowPlace sp WHERE sp.id BETWEEN :start AND :end")
     List<ShowPlace> findAllByRange(@Param("start") Long startPlaceId, @Param("end") Long endPlaceId);
