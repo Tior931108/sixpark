@@ -1,15 +1,12 @@
 package com.example.sixpark;
 
-import com.example.sixpark.common.enums.UserRole;
 import com.example.sixpark.domain.genre.entity.Genre;
 import com.example.sixpark.domain.post.entity.Post;
 import com.example.sixpark.domain.post.model.response.PostGetAllResponse;
 import com.example.sixpark.domain.post.reository.PostRepository;
 import com.example.sixpark.domain.post.service.PostService;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
-import com.example.sixpark.domain.showinfo.repository.ShowInfoRepository;
 import com.example.sixpark.domain.user.entity.User;
-import com.example.sixpark.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,13 +15,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
-
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
