@@ -16,6 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
@@ -84,4 +85,39 @@ public class ReservationController {
                 .status(HttpStatus.OK)
                 .body(PageResponse.success("예매 목록을 조회했습니다.", result));
     }
+
+    /**
+     * 전체 예매 목록 조회 (관리자용)
+     * @param authUser 로그인한 관리자
+     * @param userId 특정 유저 ID (선택)
+     * @param status 취소 여부 (true = 취소됨)
+     * @param startDate 시작 날짜
+     * @param endDate 종료 날짜
+     * @param pageable 페이징 정보
+     * @return 전체 예매 목록
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/book")
+    public ResponseEntity<PageResponse<ReservationGetInfoResponse>> getAllReservations(
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) Boolean status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        Page<ReservationGetInfoResponse> result = reservationService.getAllReservations(
+                userId,
+                status,
+                startDate,
+                endDate,
+                pageable
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(PageResponse.success("전체 예매 목록을 조회했습니다.", result));
+    }
+
 }
