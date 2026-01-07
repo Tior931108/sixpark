@@ -1,4 +1,4 @@
-package com.example.sixpark.lock;
+package com.example.sixpark.domain.seat.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;

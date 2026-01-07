@@ -10,7 +10,6 @@ import com.example.sixpark.domain.seat.model.response.SeatSelectResponse;
 import com.example.sixpark.domain.seat.repository.SeatRepository;
 import com.example.sixpark.domain.showschedule.entiry.ShowSchedule;
 import com.example.sixpark.domain.showschedule.repository.ShowScheduleRepository;
-import com.example.sixpark.lock.LockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
