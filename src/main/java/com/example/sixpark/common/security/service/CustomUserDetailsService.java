@@ -26,11 +26,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-                return new AuthUser(
-                user.getId(),        // userId 주입
-                user.getEmail(),
-                user.getPassword(),
-                user.getRole()
-        );
+                return new AuthUser(user.getId(),user.getEmail(),user.getPassword(),user.getRole());
     }
 }
