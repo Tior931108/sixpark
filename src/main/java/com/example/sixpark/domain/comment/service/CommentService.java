@@ -1,5 +1,6 @@
 package com.example.sixpark.domain.comment.service;
 
+import com.example.sixpark.common.enums.ErrorMessage;
 import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.domain.comment.entity.Comment;
 import com.example.sixpark.domain.comment.model.dto.CommentChildGetQueryDto;
@@ -20,7 +21,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-import static com.example.sixpark.common.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -209,15 +209,15 @@ public class CommentService {
     private static void invalidParentComment(Comment parent, Post post) {
         // 해당 게시글에 부모 댓글이 없으면 예외처리 발생
         if (!parent.getPost().getId().equals(post.getId())) {
-            throw new CustomException(NOT_CORRECT_PARAMETER);
+            throw new CustomException(ErrorMessage.NOT_CORRECT_PARAMETER);
         }
         // 부모 댓글이 삭제되어 있으면 생성안됨
         if (parent.isDeleted()) {
-            throw new CustomException(NOT_CORRECT_PARAMETER);
+            throw new CustomException(ErrorMessage.NOT_CORRECT_PARAMETER);
         }
         // 이미 부모 댓글이 있으면 대대댓글은 쓸수없도록 즉 대댓글까지만 가능하도록 예외처리(-> 깊이 1)
         if (parent.getParentComment() != null) {
-            throw new CustomException(NOT_CORRECT_PARAMETER);
+            throw new CustomException(ErrorMessage.NOT_CORRECT_PARAMETER);
         }
     }
 
@@ -227,9 +227,7 @@ public class CommentService {
      * @return 조회된 유저 엔티티
      */
     private User getUserByIdOrThrow(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
-                () -> new CustomException(NOT_FOUND_USER)
-        );
+        return userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_USER));
     }
 
     /**
@@ -238,9 +236,7 @@ public class CommentService {
      * @return 조회된 게시글 엔티티
      */
     private Post getPostByIdOrThrow(Long postId) {
-        return postRepository.findById(postId).orElseThrow(
-                () -> new CustomException(NOT_FOUND_POST)
-        );
+        return postRepository.findById(postId).orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_POST));
     }
 
     /**
@@ -249,9 +245,7 @@ public class CommentService {
      * @return 조회된 댓글 엔티티
      */
     private Comment getCommentByIdOrThrow(Long commentId) {
-        return commentRepository.findById(commentId).orElseThrow(
-                () -> new CustomException(NOT_FOUND_COMMENT)
-        );
+        return commentRepository.findById(commentId).orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_COMMENT));
     }
 
     /**
@@ -261,7 +255,7 @@ public class CommentService {
      */
     private static void matchedWriter(Long userId, Long commentUserId) {
         if (!userId.equals(commentUserId)) {
-            throw new CustomException(NOT_MODIFY_AUTHORIZED);
+            throw new CustomException(ErrorMessage.NOT_MODIFY_AUTHORIZED);
         }
     }
 
