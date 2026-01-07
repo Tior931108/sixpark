@@ -46,7 +46,7 @@ public class ShowScheduleService {
 
         // 못 찾은 게 있을 경우 예외 발생
         if (places.size() != request.getEndPlaceId() - request.getStartPlaceId() + 1) {
-            throw new CustomException(ErrorMessage.NOT_FOUND_SHOW_PLACE);
+            throw new CustomException(ErrorMessage.NOT_FOUND_SHOWPLACE);
         }
 
         List<ShowSchedule> schedules = new ArrayList<>();
