@@ -26,9 +26,7 @@ public class ShowInfoRankingController {
 
         List<ShowInfoRankingResponse> rankings = showInfoRankingService.getDailyTop10(genreId);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success("장르별 공연 일간 TOP10 조회가 완료되었습니다.", rankings));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("장르별 공연 일간 TOP10 조회가 완료되었습니다.", rankings));
     }
 
     /**
@@ -39,9 +37,7 @@ public class ShowInfoRankingController {
 
         List<ShowInfoRankingResponse> rankings = showInfoRankingService.getWeeklyTop10(genreId);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success("장르별 공연 주간 TOP10 조회가 완료되었습니다.", rankings));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("장르별 공연 주간 TOP10 조회가 완료되었습니다.", rankings));
     }
 
     /**
@@ -52,9 +48,7 @@ public class ShowInfoRankingController {
 
         showInfoRankingService.generateRandomViewsForGenre(genreId);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success("랜덤 조회수 생성 완료 되었습니다."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("랜덤 조회수 생성 완료 되었습니다."));
     }
 
     /**
@@ -65,8 +59,6 @@ public class ShowInfoRankingController {
 
         viewCountSyncService.manualSync();
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success("조회수 수동 동기화 완료 했습니다."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("조회수 수동 동기화 완료 했습니다."));
     }
 }

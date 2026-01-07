@@ -42,9 +42,7 @@ public class ShowInfoController {
 
         showInfoService.createShowInfoFromKopis(stdate, eddate, cpage, rows);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success("공연 정보가 생성 되었습니다.", "KOPIS API 공연 저장 완료"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("공연 정보가 생성 되었습니다.", "KOPIS API 공연 저장 완료"));
 
     }
 
@@ -61,13 +59,9 @@ public class ShowInfoController {
     @GetMapping("/genre/{genreId}/showInfoes")
     public ResponseEntity<PageResponse<ShowInfoResponse>> getAllShowInfos(@PathVariable Long genreId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "DESC") String direction) {
 
-        log.info("공연 전체 조회 요청: page={}, size={}, sortBy={}, direction={}", page, size, sortBy, direction);
-
         Page<ShowInfoResponse> infoResponses = showInfoService.getAllShowInfos(genreId, page, size, sortBy, direction);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(PageResponse.success("장르별 공연 전체 조회를 완료했습니다.", infoResponses));
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("장르별 공연 전체 조회를 완료했습니다.", infoResponses));
     }
 
 
@@ -80,13 +74,9 @@ public class ShowInfoController {
     @GetMapping("/showInfoes/{showInfoId}")
     public ResponseEntity<ApiResponse<ShowInfoDetailResponse>> getShowInfoDetail(@PathVariable Long showInfoId) {
 
-        log.info("공연 상세 조회 요청: showInfoId={}", showInfoId);
-
         ShowInfoDetailResponse response = showInfoService.getShowInfoDetail(showInfoId);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success("공연 상세 조회를 완료했습니다.", response));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("공연 상세 조회를 완료했습니다.", response));
 
     }
 
@@ -99,9 +89,7 @@ public class ShowInfoController {
 
         ShowInfoDetailResponse response = showInfoService.updateShowInfo(showInfoId, request);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success("공연 정보가 수정되었습니다.", response));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("공연 정보가 수정되었습니다.", response));
     }
 
     /**
@@ -113,8 +101,6 @@ public class ShowInfoController {
 
         showInfoService.deleteShowInfo(showInfoId);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success("공연 정보가 삭제되었습니다."));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("공연 정보가 삭제되었습니다."));
     }
 }

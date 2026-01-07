@@ -75,7 +75,6 @@ public class ShowInfoService {
 
                     // 중복 체크
                     if (showInfoRepository.existsByMt20id(dto.getMt20id())) {
-                        log.info("→ 이미 존재하는 공연, 건너뜀");
                         skipCount++;
                         continue;
                     }
@@ -84,8 +83,8 @@ public class ShowInfoService {
                     KopisShowDetailDto detailDto =
                             kopisApiService.fetchShowTimeDetail(dto.getMt20id());
 
+                    // 상세 정보 실패
                     if (detailDto == null) {
-                        log.warn("→ 상세 정보 조회 실패, 건너뜀");
                         errorCount++;
                         continue;
                     }
@@ -179,9 +178,7 @@ public class ShowInfoService {
         }
 
         // prfruntime 기본값 설정
-        String prfruntime = (detailDto.getPrfruntime() != null && !detailDto.getPrfruntime().isEmpty())
-                ? detailDto.getPrfruntime()
-                : "정보 없음";
+        String prfruntime = (detailDto.getPrfruntime() != null && !detailDto.getPrfruntime().isEmpty()) ? detailDto.getPrfruntime() : "정보 없음";
 
         // ShowTime 생성 (원본 그대로 저장)
         ShowPlace showPlace = ShowPlace.create(
@@ -273,9 +270,7 @@ public class ShowInfoService {
         Genre genre = genreService.getGenreById(genreId);
 
         // 정렬 방향 설정
-        Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC")
-                ? Sort.Direction.DESC
-                : Sort.Direction.ASC;
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
 
         // Pageable 생성
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
@@ -293,9 +288,6 @@ public class ShowInfoService {
                 ShowInfoResponse.from(ShowInfoDto.from(showInfo))
         );
 
-        log.info("공연 전체 조회 완료: page={}, size={}, totalElements={}",
-                page, size, responsePage.getTotalElements());
-
         return responsePage;
     }
 
@@ -312,11 +304,6 @@ public class ShowInfoService {
 
         // 공연 시간및 장소 정보 조회 (1:1 관계) - 예외처리 포함
         ShowPlace showPlace = showPlaceService.getShowPlaceById(showInfoId);
-
-        // 삭제여부 확인
-        if (showInfo.isDeleted()) {
-            throw new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO);
-        }
 
         // 상세 조회시 조회수 증가 - 일간/주간 모두포함
         viewCountService.incrementDailyView(showInfo.getGenre().getId(), showInfoId);
@@ -336,11 +323,6 @@ public class ShowInfoService {
         // 공연 시간및 장소 정보 조회 (1:1 관계) - 예외처리 포함
         ShowPlace showPlace = showPlaceService.getShowPlaceById(showInfoId);
 
-        // 삭제된 공연은 수정 불가
-        if (showInfo.isDeleted()) {
-            throw new CustomException(ErrorMessage.ALREADY_DELETED_NOT_MODIFY_SHOWINFO);
-        }
-
         // 공연 정보 수정 - Optinal 부분적 업데이트
         showInfo.updatePartial(request);
 
@@ -352,13 +334,8 @@ public class ShowInfoService {
      */
     @Transactional
     public void deleteShowInfo(Long showInfoId) {
-        ShowInfo showInfo = showInfoRepository.findByIdWithDetails(showInfoId)
-                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO));
-
-        // 이미 삭제된 공연인지 확인
-        if (showInfo.isDeleted()) {
-            throw new CustomException(ErrorMessage.ALREADY_DELETED_SHOWINFO);
-        }
+        // 공연 정보 조화
+        ShowInfo showInfo = getShowInfoAndDetailsById(showInfoId);
 
         // 논리 삭제 (ShowPlace도 함께)
         showInfo.softDelete();

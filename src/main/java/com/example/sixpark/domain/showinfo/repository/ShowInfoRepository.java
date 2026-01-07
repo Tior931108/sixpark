@@ -24,35 +24,43 @@ public interface ShowInfoRepository extends JpaRepository<ShowInfo, Long> , Show
     Optional<ShowInfo> findByIdWithGenre(@Param("id") Long id);
 
     // 공연 상세 정보 조회 (Genre + SHowPlace Fetch Join)
-    @Query("SELECT s FROM ShowInfo s " +
-            "LEFT JOIN FETCH s.genre " +
-            "LEFT JOIN FETCH s.showPlace " +
-            "WHERE s.id = :id " +
-            "AND s.isDeleted = false")  // 삭제된 공연 제외
+    @Query("""
+            SELECT s FROM ShowInfo s 
+            LEFT JOIN FETCH s.genre 
+            LEFT JOIN FETCH s.showPlace 
+            WHERE s.id = :id 
+            AND s.isDeleted = false
+    """)  // 삭제된 공연 제외
     Optional<ShowInfo> findByIdWithDetails(@Param("id") Long id);
 
 
     // ID 리스트로 ShowInfo 조회 (Genre 포함)
-    @Query("SELECT s FROM ShowInfo s " +
-            "LEFT JOIN FETCH s.genre " +
-            "WHERE s.id IN :ids " +
-            "AND s.isDeleted = false")
+    @Query("""
+            SELECT s FROM ShowInfo s
+            LEFT JOIN FETCH s.genre
+            WHERE s.id IN :ids
+            AND s.isDeleted = false
+    """)
     List<ShowInfo> findByIdInWithGenre(@Param("ids") List<Long> ids);
 
     // 장르별 모든 ShowInfo ID 조회 (삭제되지 않은 것만)
-    @Query("SELECT s.id FROM ShowInfo s " +
-            "WHERE s.genre.id = :genreId " +
-            "AND s.isDeleted = false")
+    @Query("""
+            SELECT s.id FROM ShowInfo s
+            WHERE s.genre.id = :genreId
+            AND s.isDeleted = false
+    """)
     List<Long> findIdsByGenreId(@Param("genreId") Long genreId);
 
     /**
      * v1: 전체 조회 (검색 조건 없을 때)
      */
-    @Query("SELECT DISTINCT s FROM ShowInfo s " +
-            "LEFT JOIN FETCH s.genre " +
-            "LEFT JOIN FETCH s.showPlace " +
-            "WHERE s.isDeleted = false " +
-            "ORDER BY s.id DESC")
+    @Query("""
+            SELECT DISTINCT s FROM ShowInfo s
+            LEFT JOIN FETCH s.genre
+            LEFT JOIN FETCH s.showPlace
+            WHERE s.isDeleted = false
+            ORDER BY s.id DESC
+    """)
     Page<ShowInfo> findAllActiveWithDetails(Pageable pageable);
 
     /**
