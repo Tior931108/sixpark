@@ -1,18 +1,30 @@
 package com.example.sixpark.domain.showinfo.service;
 
+import com.example.sixpark.common.enums.ErrorMessage;
+import com.example.sixpark.common.excepion.CustomException;
 import com.example.sixpark.domain.genre.entity.Genre;
+import com.example.sixpark.domain.genre.repository.GenreRepository;
 import com.example.sixpark.domain.genre.service.GenreService;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
 import com.example.sixpark.domain.showinfo.model.dto.KopisShowInfoDto;
+import com.example.sixpark.domain.showinfo.model.dto.ShowInfoDto;
+import com.example.sixpark.domain.showinfo.model.request.ShowInfoUpdateRequest;
+import com.example.sixpark.domain.showinfo.model.response.ShowInfoDetailResponse;
+import com.example.sixpark.domain.showinfo.model.response.ShowInfoResponse;
 import com.example.sixpark.domain.showinfo.repository.ShowInfoRepository;
 import com.example.sixpark.domain.showplace.entity.ShowPlace;
 import com.example.sixpark.domain.showplace.model.dto.KopisShowDetailDto;
+import com.example.sixpark.domain.showplace.model.dto.ShowPlaceDto;
 import com.example.sixpark.domain.showplace.repository.ShowPlaceRepository;
+import com.example.sixpark.domain.showplace.service.ShowPlaceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -26,7 +38,9 @@ public class ShowInfoService {
 
     private final ShowInfoRepository showInfoRepository;
     private final ShowPlaceRepository showPlaceRepository;
+    private final ShowPlaceService showPlaceService;
     private final GenreService genreService;
+    private final GenreRepository genreRepository;
     private final KopisApiService kopisApiService;
 
     /**
@@ -44,8 +58,7 @@ public class ShowInfoService {
                     kopisApiService.fetchShowInfoList(startDate, endDate, cpage, rows);
 
             if (performances.isEmpty()) {
-                log.warn("조회된 공연이 없습니다.");
-                return;
+                throw new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO);
             }
 
             // 로깅 전용 변수
@@ -153,139 +166,6 @@ public class ShowInfoService {
         );
     }
 
-//    /**
-//     * KOPIS DTO -> ShowTime Entity 리스트 변환 (공연 시간 파싱으로 인한 중복 현상 제거)
-//     */
-//    private List<ShowTime> convertToShowTimes(KopisShowDetailDto detailDto,
-//                                              KopisShowInfoDto dto,
-//                                              ShowInfo showInfo) {
-//        List<ShowTime> showTimes = new ArrayList<>();
-//
-//        if (detailDto.getDtguidance() == null || detailDto.getDtguidance().isEmpty()) {
-//            return showTimes;
-//        }
-//
-//        try {
-//            // "화요일 ~ 일요일(13:00, 16:00, 19:00)" 형식 파싱
-//            Pattern pattern = Pattern.compile("(\\d{2}):(\\d{2})");
-//            Matcher matcher = pattern.matcher(detailDto.getDtguidance());
-//
-//            Set<LocalTime> uniqueTimes = new HashSet<>();
-//
-//            while (matcher.find()) {
-//                int hour = Integer.parseInt(matcher.group(1));
-//                int minute = Integer.parseInt(matcher.group(2));
-//                LocalTime time = LocalTime.of(hour, minute);
-//
-//                // 중복 시간 제거
-//                if (uniqueTimes.add(time)) {
-//                    ShowTime showTime = ShowTime.create(
-//                            showInfo,
-//                            dto.getArea() != null ? dto.getArea() : "미정",
-//                            dto.getFcltynm() != null ? dto.getFcltynm() : "미정",
-//                            500L,  // 좌석 규모 : 500 고정
-//                            detailDto.getDtguidance(),
-//                            detailDto.getPrfruntime()
-//                    );
-//                    showTimes.add(showTime);
-//                }
-//            }
-//
-//        } catch (Exception e) {
-//            log.warn("공연 시간 파싱 실패: {}", detailDto.getDtguidance());
-//        }
-//
-//        return showTimes;
-//    }
-
-//    /**
-//     * KOPIS DTO -> ShowTime Entity 리스트 변환 (공연 시간 파싱으로 인한 중복 현상 제거)
-//     * (,) 요일별 분리
-//     */
-//    private List<ShowTime> parseAndCreateShowTimes(KopisShowDetailDto detailDto,
-//                                                   KopisShowInfoDto dto,
-//                                                   ShowInfo showInfo) {
-//        List<ShowTime> showTimes = new ArrayList<>();
-//
-//        // dtguidance 정보 확인
-//        if (detailDto.getDtguidance() == null || detailDto.getDtguidance().isEmpty()) {
-//            log.debug("→ dtguidance 정보 없음");
-//            return showTimes;
-//        }
-//
-//        try {
-//            // 콤마로 split하여 요일 그룹별로 처리
-//            String[] timeGroups = splitByComma(detailDto.getDtguidance());
-//
-//            // prfruntime 기본값 설정
-//            String prfruntime = (detailDto.getPrfruntime() != null && !detailDto.getPrfruntime().isEmpty())
-//                    ? detailDto.getPrfruntime()
-//                    : "정보 없음";
-//
-//            for (String timeGroup : timeGroups) {
-//                timeGroup = timeGroup.trim();
-//
-//                if (timeGroup.isEmpty()) {
-//                    continue;
-//                }
-//
-//                ShowTime showTime = ShowTime.create(
-//                        showInfo,
-//                        dto.getArea() != null ? dto.getArea() : "미정",
-//                        dto.getFcltynm() != null ? dto.getFcltynm() : "미정",
-//                        500L,  // 좌석 수 : 500 고정
-//                        timeGroup,  // 공연 시간 정보 (예: 수요일 ~ 금요일(19:30))
-//                        prfruntime  // 공연 총시간 (예: 1시간 30분)
-//                );
-//
-//                showTimes.add(showTime);
-//                log.debug("→ ShowTime 생성: {}", timeGroup);
-//            }
-//
-//            log.info("→ 파싱된 공연 시간 그룹: {} 건", showTimes.size());
-//
-//        } catch (Exception e) {
-//            log.warn("→ 공연 시간 파싱 실패: {}", detailDto.getDtguidance(), e);
-//        }
-//
-//        return showTimes;
-//    }
-
-//    /**
-//     * 콤마로 문자열 분리 (괄호 안의 콤마는 무시)
-//     * 예: "수요일(19:30), 토요일(16:00,19:00), 일요일(15:00)"
-//     *     → ["수요일(19:30)", "토요일(16:00,19:00)", "일요일(15:00)"]
-//     */
-//    private String[] splitByComma(String dtguidance) {
-//        List<String> result = new ArrayList<>();
-//        StringBuilder current = new StringBuilder();
-//        int depth = 0;  // 괄호 깊이
-//
-//        for (char c : dtguidance.toCharArray()) {
-//            if (c == '(') {
-//                depth++;
-//                current.append(c);
-//            } else if (c == ')') {
-//                depth--;
-//                current.append(c);
-//            } else if (c == ',' && depth == 0) {
-//                // 괄호 밖의 콤마만 구분자로 사용
-//                if (current.length() > 0) {
-//                    result.add(current.toString().trim());
-//                    current = new StringBuilder();
-//                }
-//            } else {
-//                current.append(c);
-//            }
-//        }
-//
-//        // 마지막 그룹 추가
-//        if (current.length() > 0) {
-//            result.add(current.toString().trim());
-//        }
-//
-//        return result.toArray(new String[0]);
-//    }
 
     /**
      * ShowPlace 생성 (파싱 없이 원본 그대로 저장)
@@ -375,5 +255,120 @@ public class ShowInfoService {
 
         // 무료 공연이거나, 가격정보가 없는 경우 0원
         return 0;
+    }
+
+
+    /**
+     * 공연 전체 조회 (페이징)
+     *
+     * @param page 페이지 번호 (0부터 시작)
+     * @param size 페이지 크기
+     * @param sortBy 정렬 기준 (기본값: id)
+     * @param direction 정렬 방향 (ASC, DESC)
+     * @return 페이징된 공연 목록
+     */
+    @Transactional(readOnly = true)
+    public Page<ShowInfoResponse> getAllShowInfos(Long genreId, int page, int size, String sortBy, String direction) {
+
+        // 장르 존재 확인 : 예외처리 장르 service에서 진행
+        Genre genre = genreService.getGenreById(genreId);
+
+        // 정렬 방향 설정
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC")
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        // Pageable 생성
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+
+        // 장르별 페이징 조회 (N+1 문제 해결된 메서드 사용)
+        Page<ShowInfo> showInfoPage = showInfoRepository.findByGenreIdWithGenre(genreId, pageable);
+
+        // 해당 장르의 공연이 없는 경우,
+       if(showInfoPage == null){
+           throw new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO);
+       }
+
+        // Entity -> DTO 변환 (ShowInfoResponse의 from 메서드 사용)
+        Page<ShowInfoResponse> responsePage = showInfoPage.map(showInfo ->
+                ShowInfoResponse.from(ShowInfoDto.from(showInfo))
+        );
+
+        log.info("공연 전체 조회 완료: page={}, size={}, totalElements={}",
+                page, size, responsePage.getTotalElements());
+
+        return responsePage;
+    }
+
+    /**
+     * 공연 상세 조회 (1개)
+     *
+     * @param showInfoId 공연 ID
+     * @return 공연 상세 정보 (ShowInfo + Genre + ShowTime)
+     */
+    @Transactional(readOnly = true)
+    public ShowInfoDetailResponse getShowInfoDetail(Long showInfoId) {
+        // 장르 기반 공연 정보 조회 (Genre Fetch Join)
+        ShowInfo showInfo = getShowInfoAndGenreById(showInfoId);
+
+        // 공연 시간및 장소 정보 조회 (1:1 관계) - 예외처리 포함
+        ShowPlace showPlace = showPlaceService.getShowPlaceById(showInfoId);
+
+        return ShowInfoDetailResponse.from(ShowInfoDto.from(showInfo), ShowPlaceDto.from(showPlace));
+    }
+
+    /**
+     * 공연 정보 수정 (관리자 전용)
+     */
+    @Transactional
+    public ShowInfoDetailResponse updateShowInfo(Long showInfoId, ShowInfoUpdateRequest request) {
+        // 공연 정보 조회 (상세 정보 포함)
+        ShowInfo showInfo = getShowInfoAndDetailsById(showInfoId);
+
+        // 공연 시간및 장소 정보 조회 (1:1 관계) - 예외처리 포함
+        ShowPlace showPlace = showPlaceService.getShowPlaceById(showInfoId);
+
+        // 삭제된 공연은 수정 불가
+        if (showInfo.isDeleted()) {
+            throw new CustomException(ErrorMessage.ALREADY_DELETED_NOT_MODIFY_SHOWINFO);
+        }
+
+        // 공연 정보 수정 - Optinal 부분적 업데이트
+        showInfo.updatePartial(request);
+
+        return ShowInfoDetailResponse.from(ShowInfoDto.from(showInfo), ShowPlaceDto.from(showPlace));
+    }
+
+    /**
+     * 공연 삭제 (관리자 전용 - 논리 삭제)
+     */
+    @Transactional
+    public void deleteShowInfo(Long showInfoId) {
+        ShowInfo showInfo = showInfoRepository.findByIdWithDetails(showInfoId)
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO));
+
+        // 이미 삭제된 공연인지 확인
+        if (showInfo.isDeleted()) {
+            throw new CustomException(ErrorMessage.ALREADY_DELETED_SHOWINFO);
+        }
+
+        // 논리 삭제 (ShowPlace도 함께)
+        showInfo.softDelete();
+    }
+
+    /**
+     * Genre 기반 ShowInfo ID 조회 (예외 처리 포함)
+     */
+    public ShowInfo getShowInfoAndGenreById(Long showInfoId) {
+        return showInfoRepository.findByIdWithGenre(showInfoId)
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO));
+    }
+
+    /**
+     * ShowInfo ID 기반 공연 상세 조회 (예외 처리 포함)
+     */
+    public ShowInfo getShowInfoAndDetailsById(Long showInfoId) {
+        return showInfoRepository.findByIdWithDetails(showInfoId)
+                .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_SHOWINFO));
     }
 }

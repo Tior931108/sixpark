@@ -91,7 +91,7 @@ public class CommentService {
      */
     private Post getPostByIdOrThrow(Long postId) {
         return postRepository.findById(postId).orElseThrow(
-                () -> new CustomException(NOT_FOUND_POST)
+                () -> new CustomException(NOT_FOUND_POST) // 나중에 상수를 NOT_FOUND_POST로 변경
         );
     }
 

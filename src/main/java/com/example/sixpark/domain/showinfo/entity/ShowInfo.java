@@ -1,15 +1,14 @@
 package com.example.sixpark.domain.showinfo.entity;
 
 import com.example.sixpark.domain.genre.entity.Genre;
+import com.example.sixpark.domain.showinfo.model.request.ShowInfoUpdateRequest;
+import com.example.sixpark.domain.showplace.entity.ShowPlace;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
-import java.util.List;
-
-import static java.lang.Boolean.FALSE;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -49,6 +48,9 @@ public class ShowInfo {
     @Column(nullable = false, length = 10)
     private boolean isDeleted = false; // 논리 삭제 여부
 
+    @OneToOne(mappedBy = "showInfo", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private ShowPlace showPlace;
+
     public ShowInfo(Genre genre, String mt20id, String prfnm, String prfcast, LocalDate prfpdfrom, LocalDate prfpdto, String poster, Integer pcseguidance) {
         this.genre = genre;
         this.mt20id = mt20id;
@@ -75,8 +77,31 @@ public class ShowInfo {
         return showInfo;
     }
 
-    public void softDelete() {
-        this.isDeleted = true;
+    // 부분 업데이트 (String → LocalDate , Integer변환)
+    public void updatePartial(ShowInfoUpdateRequest request) {
+        Optional.ofNullable(request.getPrfnm())
+                .ifPresent(v -> this.prfnm = v);
+
+        Optional.ofNullable(request.getPrfpdfrom())
+                .map(LocalDate::parse)  // String → LocalDate 변환
+                .ifPresent(v -> this.prfpdfrom = v);
+
+        Optional.ofNullable(request.getPrfpdto())
+                .map(LocalDate::parse)  // String → LocalDate 변환
+                .ifPresent(v -> this.prfpdto = v);
+
+        Optional.ofNullable(request.getPcseguidance())
+                .map(Integer::parseInt)  // String → Integer 변환
+                .ifPresent(v -> this.pcseguidance = v);
     }
 
+    // 논리 삭제
+    public void softDelete() {
+        this.isDeleted = true;
+
+        // ShowPlace도 함께 논리 삭제
+        if (this.showPlace != null) {
+            this.showPlace.softDelete();
+        }
+    }
 }
