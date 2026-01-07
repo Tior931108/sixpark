@@ -3,7 +3,6 @@ package com.example.sixpark.domain.post.model.response;
 import com.example.sixpark.domain.post.model.dto.PostDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
