@@ -42,7 +42,13 @@ public class ReservationService {
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_USER));
         // 좌석 조회
         Seat seat = seatRepository.findById(request.getSeatId())
-                .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_RESERVATION));
+                .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_SEAT));
+
+        // 선택된 좌석이 아닌 경우
+        if (!seat.isSelected()) throw new CustomException(ErrorMessage.SEAT_NOT_SELECTED);
+        // 이미 예매된 경우
+        if (reservationRepository.existsByUserAndSeat(user, seat))
+            throw new CustomException(ErrorMessage.ALREADY_CREATED_RESERVATION);
 
         Reservation reservation = new Reservation(user, seat);
         reservationRepository.save(reservation);
@@ -64,6 +70,19 @@ public class ReservationService {
     }
 
     /**
+     * 예매 전체조회 (관리자용)
+     */
+    @Transactional(readOnly = true)
+    public Page<ReservationGetInfoResponse> getAllReservations(Long userId, Boolean isDeleted, LocalDate startDate, LocalDate endDate,Pageable pageable) {
+
+        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = endDate != null ? endDate.atTime(LocalTime.MAX) : null;
+
+        // userId가 null이면 전체 조회, null이 아니면 특정 유저 조회
+        return reservationRepository.findMyReservations(userId, isDeleted, startDateTime, endDateTime, pageable);
+    }
+
+    /**
      * 예매 취소
      * @param bookId 예매 ID
      */
@@ -75,7 +94,7 @@ public class ReservationService {
         if (reservation.isDeleted()) // 이미 취소된 예매인지 확인
             throw new CustomException(ErrorMessage.ALREADY_CANCELED_RESERVATION);
 
-        if (reservation.getUser().getId().equals(userId)) // 본인 예매가 맞는지 확인
+        if (!reservation.getUser().getId().equals(userId)) // 본인 예매가 맞는지 확인
             throw new CustomException(ErrorMessage.NOT_FOUND_RESERVATION);
 
         reservation.softDelete(); // 논리 삭제

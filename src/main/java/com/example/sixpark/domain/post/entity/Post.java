@@ -4,6 +4,7 @@ import com.example.sixpark.common.entity.BaseEntity;
 import com.example.sixpark.domain.user.entity.User;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,7 @@ public class Post extends BaseEntity {
     private ShowInfo showinfo;
 
     @Column(nullable = false)
+    @Size(min = 1, max = 30)
     private String title;
 
     @Column(nullable = false)
