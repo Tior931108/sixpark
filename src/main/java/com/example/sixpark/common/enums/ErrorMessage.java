@@ -51,7 +51,9 @@ public enum ErrorMessage {
     EXIST_TEAM_NAME(HttpStatus.CONFLICT, "이미 존재하는 팀 이름입니다."),
     EXIST_TEAM_MEMBER_NOT_DELETE(HttpStatus.CONFLICT, "팀에 멤버가 존재하여 삭제할 수 없습니다."),
     EXIST_TEAM_MEMBER(HttpStatus.CONFLICT, "이미 팀에 속한 멤버입니다."),
-    ALREADY_CANCELED_RESERVATION(HttpStatus.CONFLICT, "이미 취소된 예매입니다.")
+    ALREADY_CANCELED_RESERVATION(HttpStatus.CONFLICT, "이미 취소된 예매입니다."),
+    ALREADY_CREATED_RESERVATION(HttpStatus.CONFLICT, "이미 완료된 예매입니다."),
+    SEAT_NOT_SELECTED(HttpStatus.CONFLICT, "선택된 좌석이 아닙니다.")
     ;
 
     private final HttpStatus status;
