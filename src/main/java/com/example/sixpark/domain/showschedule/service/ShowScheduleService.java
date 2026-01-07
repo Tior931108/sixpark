@@ -45,7 +45,7 @@ public class ShowScheduleService {
         for (ShowScheduleCreateRequest request : requestList) { // 공연 장소마다 스케줄 생성
             // 공연 장소 조회
             ShowPlace place = showPlaceRepository.findById(request.getShowPlaceId())
-                    .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_SHOW_PLACE));
+                    .orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_SHOWPLACE));
 
             // 요일별 공연 시간
             String[] blocks = place.getDtguidance().split(", "); // 예시: [금요일(18:00,20:30), 토요일 ~ 일요일(17:00,19:30)]

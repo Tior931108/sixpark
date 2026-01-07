@@ -17,7 +17,7 @@ public class ShowPlace extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "show_info_id", unique = true) // 공연정보 - 공연시간정보 1:1 보장
     private ShowInfo showInfo; // 공연정보 ID
 
@@ -35,6 +35,9 @@ public class ShowPlace extends BaseEntity {
 
     @Column(nullable = false)
     private String prfruntime; // 공연 총시간 ex) 1시간 30분
+
+    @Column(nullable = false, length = 10)
+    private boolean isDeleted = false; // 논리 삭제 여부
 
     public ShowPlace(ShowInfo showInfo, String area, String fcltynm, Long seatscale, String dtguidance, String prfruntime) {
         this.showInfo = showInfo;
@@ -57,4 +60,7 @@ public class ShowPlace extends BaseEntity {
         return showPlace;
     }
 
+    public void softDelete() {
+        this.isDeleted = true;
+    }
 }
