@@ -19,8 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import software.amazon.awssdk.services.s3.internal.multipart.MpuRequestContext;
-
 import java.time.LocalDate;
 
 @RestController

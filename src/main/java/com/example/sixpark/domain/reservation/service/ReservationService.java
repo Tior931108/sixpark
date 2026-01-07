@@ -67,9 +67,8 @@ public class ReservationService {
      * 예매 전체조회 (관리자용)
      */
     @Transactional(readOnly = true)
-    public Page<ReservationGetInfoResponse> getAllReservations(
-            Long userId, Boolean isDeleted, LocalDate startDate, LocalDate endDate,Pageable pageable
-    ) {
+    public Page<ReservationGetInfoResponse> getAllReservations(Long userId, Boolean isDeleted, LocalDate startDate, LocalDate endDate,Pageable pageable) {
+
         LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = endDate != null ? endDate.atTime(LocalTime.MAX) : null;
 
