@@ -1,7 +1,8 @@
-package com.example.sixpark.lock;
+package com.example.sixpark.domain.seat.service;
 
 import com.example.sixpark.common.enums.ErrorMessage;
 import com.example.sixpark.common.excepion.CustomException;
+import com.example.sixpark.domain.seat.repository.RedisLockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
