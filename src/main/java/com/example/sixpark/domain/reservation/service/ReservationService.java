@@ -23,7 +23,6 @@ import java.time.LocalTime;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
@@ -36,6 +35,7 @@ public class ReservationService {
      * @param request 예매 생성 요청 DTO
      * @return 예매 생성 응답 DTO
      */
+    @Transactional
     public ReservationCreateResponse createReservation(Long userId, ReservationCreateRequest request) {
         // 유저 조회
         User user = userRepository.findById(userId)
@@ -45,10 +45,13 @@ public class ReservationService {
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_SEAT));
 
         // 선택된 좌석이 아닌 경우
-        if (!seat.isSelected()) throw new CustomException(ErrorMessage.SEAT_NOT_SELECTED);
+        if (!seat.isSelected()) {
+            throw new CustomException(ErrorMessage.SEAT_NOT_SELECTED);
+        }
         // 이미 예매된 경우
-        if (reservationRepository.existsByUserAndSeat(user, seat))
+        if (reservationRepository.existsByUserAndSeat(user, seat)) {
             throw new CustomException(ErrorMessage.ALREADY_CREATED_RESERVATION);
+        }
 
         Reservation reservation = new Reservation(user, seat);
         reservationRepository.save(reservation);
@@ -86,17 +89,21 @@ public class ReservationService {
      * 예매 취소
      * @param bookId 예매 ID
      */
+    @Transactional
     public void deleteReservation(Long userId, Long bookId) {
         // 예매 조회
         Reservation reservation = reservationRepository.findById(bookId)
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_DELETE_AUTHORIZED));
 
-        if (reservation.isDeleted()) // 이미 취소된 예매인지 확인
+        if (reservation.isDeleted()) { // 이미 취소된 예매인지 확인
             throw new CustomException(ErrorMessage.ALREADY_CANCELED_RESERVATION);
+        }
 
-        if (!reservation.getUser().getId().equals(userId)) // 본인 예매가 맞는지 확인
+        if (!reservation.getUser().getId().equals(userId)) { // 본인 예매가 맞는지 확인
             throw new CustomException(ErrorMessage.NOT_FOUND_RESERVATION);
+        }
 
         reservation.softDelete(); // 논리 삭제
+        reservation.getSeat().select(false); // 좌석 선택 취소
     }
 }
