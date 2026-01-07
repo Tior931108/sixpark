@@ -55,6 +55,8 @@ public enum ErrorMessage {
     ALREADY_DELETED_NOT_MODIFY_SHOWINFO(HttpStatus.CONFLICT, "이미 삭제된 공연 정보는 수정할 수 없습니다."),
     ALREADY_DELETED_SHOWINFO(HttpStatus.CONFLICT, "이미 삭제된 공연 정보입니다."),
     ALREADY_CANCELED_RESERVATION(HttpStatus.CONFLICT, "이미 취소된 예매입니다."),
+    ALREADY_CREATED_RESERVATION(HttpStatus.CONFLICT, "이미 완료된 예매입니다."),
+    SEAT_NOT_SELECTED(HttpStatus.CONFLICT, "선택된 좌석이 아닙니다.")
     ;
 
     private final HttpStatus status;

@@ -33,7 +33,7 @@ public class ReservationCustomRepositoryImpl implements ReservationCustomReposit
                 .select(Projections.constructor(ReservationGetInfoResponse.class,
                         r.id,
                         r.user.id,
-                        s.id,
+                        s.seatNo,
                         ss.id,
                         r.createdAt,
                         r.isDeleted

@@ -42,7 +42,13 @@ public class ReservationService {
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_USER));
         // 좌석 조회
         Seat seat = seatRepository.findById(request.getSeatId())
-                .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_RESERVATION));
+                .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_SEAT));
+
+        // 선택된 좌석이 아닌 경우
+        if (!seat.isSelected()) throw new CustomException(ErrorMessage.SEAT_NOT_SELECTED);
+        // 이미 예매된 경우
+        if (reservationRepository.existsByUserAndSeat(user, seat))
+            throw new CustomException(ErrorMessage.ALREADY_CREATED_RESERVATION);
 
         Reservation reservation = new Reservation(user, seat);
         reservationRepository.save(reservation);
