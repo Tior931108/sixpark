@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "show_places")
+// 검색 성능 개선 인덱스 적용 - v2 전용
+@Table(name = "show_places", indexes = {@Index(name = "idx_show_places_area", columnList = "area"), @Index(name = "idx_show_places_fcltynm", columnList = "fcltynm"), @Index(name = "idx_show_places_dtguidance", columnList = "dtguidance")})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShowPlace extends BaseEntity {
 

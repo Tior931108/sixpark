@@ -1,5 +1,6 @@
 package com.example.sixpark.domain.showinfo.service;
 
+import com.example.sixpark.domain.genre.repository.GenreRepository;
 import com.example.sixpark.domain.showinfo.repository.ShowInfoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,10 +9,11 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -20,17 +22,25 @@ public class ViewCountSyncService {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ShowInfoRepository showInfoRepository;
+    private final GenreRepository genreRepository;
 
     private static final String DAILY_VIEW_KEY_PREFIX = "views:daily:genre:";
+    private static final String SYNC_LOCK_KEY = "sync:lock:view-count";
 
     /**
      * Redis → DB 동기화 (5분마다)
      * cron: 초 분 시 일 월 요일
+     *
+     * 분산 락으로 중복 스케줄 실행 방지
      */
     @Scheduled(cron = "0 */5 * * * *")  // 5분마다 실행
     @Transactional
     public void syncViewCountsToDatabase() {
         log.info("=== 조회수 동기화 시작 ===");
+
+        // 락 획득 시도 (10초 타임아웃, 5분 유지)
+        Boolean lockAcquired = redisTemplate.opsForValue()
+                .setIfAbsent(SYNC_LOCK_KEY, "locked", 5, TimeUnit.MINUTES);
 
         try {
             // 오늘 날짜
@@ -41,7 +51,8 @@ public class ViewCountSyncService {
              * >> KOPIS API 기준 장르 9개
              */
             // 모든 장르에 대해 동기화 (1~9번 장르)
-            for (long genreId = 1; genreId <= 9; genreId++) {
+            List<Long> genreIds = genreRepository.findAllGenreIds();
+            for (Long genreId : genreIds) {
                 syncGenreDailyViews(genreId, today);
             }
 
@@ -49,6 +60,9 @@ public class ViewCountSyncService {
 
         } catch (Exception e) {
             log.error("조회수 동기화 실패", e);
+        } finally {
+            // 분산 락 해제
+            redisTemplate.delete(SYNC_LOCK_KEY);
         }
     }
 
