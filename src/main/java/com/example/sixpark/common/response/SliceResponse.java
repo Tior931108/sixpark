@@ -24,11 +24,7 @@ public class SliceResponse<T> {
 
     // 커스텀 메시지와 함께
     public static <T> SliceResponse<T> success(String message, Slice<T> slice) {
-        return new SliceResponse<>(
-                true,
-                message,
-                new SliceData<>(slice)
-        );
+        return new SliceResponse<>(true, message, new SliceData<>(slice));
     }
 
     // 실패 응답
