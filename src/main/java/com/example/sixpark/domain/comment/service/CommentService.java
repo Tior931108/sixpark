@@ -1,13 +1,12 @@
 package com.example.sixpark.domain.comment.service;
 
+import com.example.sixpark.common.enums.ErrorMessage;
 import com.example.sixpark.common.excepion.CustomException;
-import com.example.sixpark.common.response.SliceResponse;
 import com.example.sixpark.domain.comment.entity.Comment;
 import com.example.sixpark.domain.comment.model.dto.CommentChildGetQueryDto;
 import com.example.sixpark.domain.comment.model.dto.CommentDto;
 import com.example.sixpark.domain.comment.model.dto.CommentParentGetQueryDto;
 import com.example.sixpark.domain.comment.model.request.CommentCreateRequest;
-import com.example.sixpark.domain.comment.model.request.CommentSearchRequest;
 import com.example.sixpark.domain.comment.model.request.CommentUpdateRequest;
 import com.example.sixpark.domain.comment.model.response.*;
 import com.example.sixpark.domain.comment.repository.CommentRepository;
@@ -21,7 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import static com.example.sixpark.common.enums.ErrorMessage.*;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +39,7 @@ public class CommentService {
      * @return 댓글 생성 결과
      */
     @Transactional
-    public CommentCreateResponse createComment(Long userId, CommentCreateRequest request) {
+    public CommentResponse createComment(Long userId, CommentCreateRequest request) {
         User writer = getUserByIdOrThrow(userId);
         Post post = getPostByIdOrThrow(request.getPostId());
 
@@ -48,62 +47,21 @@ public class CommentService {
         if (request.getParentId() != null) {
             parent = getCommentByIdOrThrow(request.getParentId());
             invalidParentComment(parent, post);
+            parent.addChildComments();
         }
 
-        Comment comment = commentRepository.save(new Comment(request.getContent(), post, writer, parent));
+        Comment comment = new Comment(
+                request.getContent(),
+                post,
+                writer,
+                parent
+        );
+
+        commentRepository.save(comment);
 
         CommentDto dto = CommentDto.from(comment);
 
-        return CommentCreateResponse.from(dto, WriterResponse.from(UserDto.from(writer)));
-    }
-
-    /**
-     * 부모 댓글 검증
-     * @param parent 부모 댓글
-     * @param post 댓글 작성 게시글
-     */
-    private static void invalidParentComment(Comment parent, Post post) {
-        // 해당 게시글에 부모 댓글이 없으면 예외처리 발생
-        if(!parent.getPost().getId().equals(post.getId())) {
-            throw new CustomException(NOT_CORRECT_PARAMETER);
-        }
-        // 이미 부모 댓글이 있으면 대대댓글은 쓸수없도록 즉 대댓글까지만 가능하도록 예외처리
-        if(parent.getParentComment() != null) {
-            throw new CustomException(NOT_CORRECT_PARAMETER);
-        }
-    }
-
-    /**
-     * 유저 아이디에 해당하는 유저 조회 없으면 예외 발생
-     * @param userId 유저 아이디
-     * @return 조회된 유저 엔티티
-     */
-    private User getUserByIdOrThrow(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
-                () -> new CustomException(NOT_FOUND_USER)
-        );
-    }
-
-    /**
-     * 게시글 아이디에 해당하는 게시글 조회 없으면 예외 발생
-     * @param postId 게시글 아이디
-     * @return 조회된 게시글 엔티티
-     */
-    private Post getPostByIdOrThrow(Long postId) {
-        return postRepository.findById(postId).orElseThrow(
-                () -> new CustomException(NOT_FOUND_POST) // 나중에 상수를 NOT_FOUND_POST로 변경
-        );
-    }
-
-    /**
-     * 댓글 아이디에 해당하는 댓글 조회 없으면 예외 발생
-     * @param commentId 댓글 아이디
-     * @return 조회된 댓글 엔티티
-     */
-    private Comment getCommentByIdOrThrow(Long commentId) {
-        return commentRepository.findById(commentId).orElseThrow(
-                () -> new CustomException(NOT_FOUND_COMMENT)
-        );
+        return CommentResponse.from(dto, WriterResponse.from(UserDto.from(writer)));
     }
 
     /**
@@ -114,25 +72,18 @@ public class CommentService {
      * @return 댓글 수정 결과
      */
     @Transactional
-    public CommentUpdateResponse updateComment(Long userId, Long commentId, CommentUpdateRequest request) {
+    public CommentResponse updateComment(Long userId, Long commentId, CommentUpdateRequest request) {
         User writer = getUserByIdOrThrow(userId);
         Comment comment = getCommentByIdOrThrow(commentId);
+
         matchedWriter(writer.getId(), comment.getUser().getId());
+
         comment.update(request.getContent());
         commentRepository.save(comment);
-        CommentDto dto = CommentDto.from(comment);
-        return CommentUpdateResponse.from(dto, WriterResponse.from(UserDto.from(writer)));
-    }
 
-    /**
-     * 작성자가 일치하지 않으면 예외 발생
-     * @param userId 유저 아이디
-     * @param commentUserId 댓글작성자 아이디
-     */
-    private static void matchedWriter(Long userId, Long commentUserId) {
-        if(!userId.equals(commentUserId)) {
-            throw new CustomException(NOT_MODIFY_AUTHORIZED);
-        }
+        CommentDto dto = CommentDto.from(comment);
+
+        return CommentResponse.from(dto, WriterResponse.from(UserDto.from(writer)));
     }
 
     /**
@@ -144,23 +95,35 @@ public class CommentService {
     public void deleteComment(Long userId, Long commentId) {
         User writer = getUserByIdOrThrow(userId);
         Comment comment = getCommentByIdOrThrow(commentId);
+
         matchedWriter(writer.getId(), comment.getUser().getId());
+
+        // 자식 댓글인 경우 삭제 로직 return이 없으면 전체삭제됨
+        if (comment.getParentComment() != null) {
+            Comment parent = comment.getParentComment();
+            parent.minusChildComments();
+            comment.softDelete();
+            return;
+        }
+
+        deleteChildComments(comment);
         comment.softDelete();
     }
 
     /**
      * 댓글 검색
-     * @param request 댓글 검색 요청 dto
+     * @param postId 게시글 id
+     * @param searchKey 검색어
      * @param pageable 페이징
      * @return 댓글 검색 결과
      */
     @Transactional(readOnly = true)
-    public SliceResponse<CommentParentResponse> getSearchComment(CommentSearchRequest request, Pageable pageable) {
-        Post post = getPostByIdOrThrow(request.getPostId());
+    public Slice<CommentParentResponse> getSearchComment(Long postId, String searchKey, Pageable pageable) {
+        Post post = getPostByIdOrThrow(postId);
 
-        Slice<CommentParentGetQueryDto> commentList = commentRepository.getSearchComments(post.getId(), request.getSearchKey(), pageable);
+        Slice<CommentParentGetQueryDto> commentList = commentRepository.getSearchComments(post.getId(), searchKey, pageable);
 
-        Slice<CommentParentResponse> commentPageList = commentList.map(dto ->
+        return commentList.map(dto ->
                 new CommentParentResponse(
                         dto.getId(),
                         dto.getPostId(),
@@ -175,7 +138,6 @@ public class CommentService {
                         dto.getModifiedAt()
                 )
         );
-        return SliceResponse.success("댓글 검색 조회 성공", commentPageList);
     }
 
     /**
@@ -185,11 +147,12 @@ public class CommentService {
      * @return 부모 조회 결과
      */
     @Transactional(readOnly = true)
-    public SliceResponse<CommentParentResponse> getParentComment(Long postId, Pageable pageable) {
+    public Slice<CommentParentResponse> getParentComment(Long postId, Pageable pageable) {
         Post post = getPostByIdOrThrow(postId);
+
         Slice<CommentParentGetQueryDto> parentCommentList = commentRepository.getParentComment(post.getId(), pageable);
 
-        Slice<CommentParentResponse> parentCommentSliceList = parentCommentList.map(dto ->
+        return parentCommentList.map(dto ->
                 new CommentParentResponse(
                         dto.getId(),
                         dto.getPostId(),
@@ -204,7 +167,6 @@ public class CommentService {
                         dto.getModifiedAt()
                 )
         );
-        return SliceResponse.success("댓글 조회 성공", parentCommentSliceList);
     }
 
     /**
@@ -215,13 +177,14 @@ public class CommentService {
      * @return 자식 조회 결과
      */
     @Transactional(readOnly = true)
-    public SliceResponse<CommentChildResponse> getChildComment(Long parentCommentId, Long postId, Pageable pageable) {
+    public Slice<CommentChildResponse> getChildComment(Long parentCommentId, Long postId, Pageable pageable) {
         Post post = getPostByIdOrThrow(postId);
+
         getCommentByIdOrThrow(parentCommentId);
 
         Slice<CommentChildGetQueryDto> childCommentList = commentRepository.getChildComment(parentCommentId, post.getId(), pageable);
 
-        Slice<CommentChildResponse> childCommentSliceList = childCommentList.map(dto ->
+        return childCommentList.map(dto ->
                 new CommentChildResponse(
                         dto.getId(),
                         dto.getPostId(),
@@ -236,6 +199,72 @@ public class CommentService {
                         dto.getModifiedAt()
                 )
         );
-        return SliceResponse.success("댓글 조회 성공", childCommentSliceList);
+    }
+
+    /**
+     * 부모 댓글 검증
+     * @param parent 부모 댓글
+     * @param post 댓글 작성 게시글
+     */
+    private static void invalidParentComment(Comment parent, Post post) {
+        // 해당 게시글에 부모 댓글이 없으면 예외처리 발생
+        if (!parent.getPost().getId().equals(post.getId())) {
+            throw new CustomException(ErrorMessage.NOT_CORRECT_PARAMETER);
+        }
+        // 부모 댓글이 삭제되어 있으면 생성안됨
+        if (parent.isDeleted()) {
+            throw new CustomException(ErrorMessage.NOT_CORRECT_PARAMETER);
+        }
+        // 이미 부모 댓글이 있으면 대대댓글은 쓸수없도록 즉 대댓글까지만 가능하도록 예외처리(-> 깊이 1)
+        if (parent.getParentComment() != null) {
+            throw new CustomException(ErrorMessage.NOT_CORRECT_PARAMETER);
+        }
+    }
+
+    /**
+     * 유저 아이디에 해당하는 유저 조회 없으면 예외 발생
+     * @param userId 유저 아이디
+     * @return 조회된 유저 엔티티
+     */
+    private User getUserByIdOrThrow(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_USER));
+    }
+
+    /**
+     * 게시글 아이디에 해당하는 게시글 조회 없으면 예외 발생
+     * @param postId 게시글 아이디
+     * @return 조회된 게시글 엔티티
+     */
+    private Post getPostByIdOrThrow(Long postId) {
+        return postRepository.findById(postId).orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_POST));
+    }
+
+    /**
+     * 댓글 아이디에 해당하는 댓글 조회 없으면 예외 발생
+     * @param commentId 댓글 아이디
+     * @return 조회된 댓글 엔티티
+     */
+    private Comment getCommentByIdOrThrow(Long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(() -> new CustomException(ErrorMessage.NOT_FOUND_COMMENT));
+    }
+
+    /**
+     * 작성자가 일치하지 않으면 예외 발생
+     * @param userId 유저 아이디
+     * @param commentUserId 댓글작성자 아이디
+     */
+    private static void matchedWriter(Long userId, Long commentUserId) {
+        if (!userId.equals(commentUserId)) {
+            throw new CustomException(ErrorMessage.NOT_MODIFY_AUTHORIZED);
+        }
+    }
+
+    /**
+     * 부모댓글 사라질때 자식 댓글 삭제 모든 자식 댓글 삭제
+     * @param parent 부모 댓글
+     */
+    private void deleteChildComments(Comment parent) {
+        List<Comment> childComments = commentRepository.findByParentComment_Id(parent.getId());
+        childComments.forEach(Comment::softDelete);
     }
 }
