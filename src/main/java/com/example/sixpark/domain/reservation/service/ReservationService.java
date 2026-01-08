@@ -48,8 +48,8 @@ public class ReservationService {
         if (!seat.isSelected()) {
             throw new CustomException(ErrorMessage.SEAT_NOT_SELECTED);
         }
-        // 이미 예매된 경우
-        if (reservationRepository.existsByUserAndSeat(user, seat)) {
+        // 이미 예매된 경우 (예매 취소 안된 경우만 확인)
+        if (reservationRepository.existsByUserAndSeatAndIsDeletedFalse(user, seat)) {
             throw new CustomException(ErrorMessage.ALREADY_CREATED_RESERVATION);
         }
 

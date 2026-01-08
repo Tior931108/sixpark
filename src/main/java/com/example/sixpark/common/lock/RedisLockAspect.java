@@ -44,8 +44,10 @@ public class RedisLockAspect {
         return lockService.executeWithLock(key, ttl, () -> {
             try {
                 return joinPoint.proceed();  // 메서드 발생
+            } catch (RuntimeException e) {
+                throw e; // CustomException 포함
             } catch (Throwable t) {
-                throw new RuntimeException(t); // Supplier<T>에서 checked 예외를 허용하지 않음. -> runtime 적용
+                throw new RuntimeException(t); // 정말 예측 불가한 예외만
             }
         });
 
