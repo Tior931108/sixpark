@@ -2,6 +2,7 @@ package com.example.sixpark.domain.user.model.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import java.time.LocalDate;
 
@@ -21,6 +22,6 @@ public class UserSignupRequest {
     @NotBlank(message = "사용할 별명을 입력해주세요.")
     private String nickname;
 
-    @NotBlank(message = "생년/월/일을 입력해 주세요.")
+    @NotNull(message = "생년/월/일을 입력해 주세요.")
     private LocalDate birth;
 }
