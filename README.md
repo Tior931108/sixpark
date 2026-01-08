@@ -1,16 +1,16 @@
-# sixpark - 공연 얘매 사이트
+# sixpark - 공연 예매 사이트
 
 ## 프로젝트 소개
 
-**sixpark**는 공연 얘매 사이트로서 REST API 기반 프로젝트입니다.
+**sixpark**는 공연 예매 사이트로서 REST API 기반 프로젝트입니다.
 
 동시성을 핵심 로직으로 하여 캐싱도 가미한 프로그램으로 진행되었습니다.
 
 ### 프로젝트 목표
 
--콘서트 예매 내역 확인 및 인기 공연 검색 성능 강화
--좌석 동시성 제어
--인기 공연 검색(캐싱)
+- 콘서트 예매 내역 확인 및 인기 공연 검색 성능 강화
+- 좌석 동시성 제어
+- 인기 공연 검색(캐싱)
 
 ### 개발 기간
 
@@ -89,7 +89,8 @@
 </details>
 
 ## 데이터베이스 ERD
-<img width="1482" height="722" alt="image2" src="https://github.com/user-attachments/assets/e1d520b5-b837-4ab2-8a9b-50f6c2da2b37" />
+<img width="1414" height="747" alt="image" src="https://github.com/user-attachments/assets/5fad84e3-dcb4-40d5-85cb-8a89574f88a1" />
+
 
 ## API 명세
 
@@ -173,13 +174,13 @@ cd sixpark
 ## 프로젝트 구조
 
 ```
-taskFlow
+sixpark
 	├── common
 	│   ├── config          # 설정 (QuertDsl,Redis 등)
 	│   ├── entity          # BaseEntity, TokenBlackList
 	│   ├── enums           # 공통 상수 관리
 	│   ├── exception       # 전역 예외 처리
-  │   ├── lock            # AOP를 이용한 Redis lock 로직
+	│   ├── lock            # AOP를 이용한 Redis lock 로직
 	│   ├── response        # 공통 응답 포멧
 	│   └── security        # JWT, Security등 보안 설정     
 	└── domain
@@ -190,7 +191,7 @@ taskFlow
 	    ├── genre           # 장르 도메인
 	    ├── seat            # 좌석 도메인
 	    ├── reservation     # 예매 도메인
-      ├── post            # 게시글 도메인
+      	├── post            # 게시글 도메인
 	    └── comment         # 댓글 도메인
 			※ 각 도메인은 기본적으로 controller, entity, service, repository 계층으로 분리되어 있고,
 			  model 패키지에서 dto, request, response 객체들을 관리합니다
