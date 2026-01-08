@@ -2,6 +2,7 @@ package com.example.sixpark.domain.seat.service;
 
 import com.example.sixpark.common.enums.ErrorMessage;
 import com.example.sixpark.common.excepion.CustomException;
+import com.example.sixpark.common.lock.RedisLock;
 import com.example.sixpark.domain.seat.entity.Seat;
 import com.example.sixpark.domain.seat.model.dto.SeatDto;
 import com.example.sixpark.domain.seat.model.request.SeatCreateRequest;
@@ -61,21 +62,18 @@ public class SeatService {
      * 좌석 선택, redis 락 구현
      */
     @Transactional
+    @RedisLock(key = "'seat:' + #request.scheduleId + ':' + #request.seatNo", ttl = 3000)
     public SeatSelectResponse selectSeatRedisLock(SeatSelectRequest request) {
         // 좌석 조회
         Seat seat = seatRepository.findSeat(request.getScheduleId(), request.getSeatNo())
                 .orElseThrow(()-> new CustomException(ErrorMessage.NOT_FOUND_SEAT));
 
-        return lockService.executeWithLock("lock:seat:" + seat.getId(),
-                () -> {
-                    // 이미 선택된 좌석인지 확인
-                    if (seat.isSelected()) {
-                        throw new CustomException(ErrorMessage.SEAT_ALREADY_SELECTED);
-                    }
+        if (seat.isSelected()) {
+            throw new CustomException(ErrorMessage.SEAT_ALREADY_SELECTED);
+        }
 
-                    seat.select(true);
-                    return SeatSelectResponse.from(SeatDto.from(seat));
-                });
+        seat.select(true);
+        return SeatSelectResponse.from(SeatDto.from(seat));
     }
 
     /**
