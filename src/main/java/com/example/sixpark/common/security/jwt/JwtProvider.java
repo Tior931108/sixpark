@@ -7,9 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import java.security.Key;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -23,6 +21,8 @@ public class JwtProvider {
      */
     @Value("${jwt.secret.key}")
     private String secretKey;
+
+    private String BEARER = "Bearer ";
 
     // Access Token 만료 시간 (60분)
     private final long TOKEN_EXPIRE_TIME = 1000L * 60 * 60;
@@ -38,7 +38,7 @@ public class JwtProvider {
      * JWT 토큰 생성
      */
     public String createToken(Long userId, UserRole role) {
-        return Jwts.builder()
+        return BEARER + Jwts.builder()
                 .setSubject(String.valueOf(userId)) // 토큰의 주인 (userId)
                 .claim("role", role.name())                 // 권한 정보
                 .setIssuedAt(new Date())

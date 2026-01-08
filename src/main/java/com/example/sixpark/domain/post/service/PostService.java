@@ -111,7 +111,6 @@ public class PostService {
         if (!post.getUser().getId().equals(userId)) {
             throw new CustomException(ErrorMessage.NOT_DELETE_AUTHORIZED);
         }
-
         post.softDelete();
     }
 }

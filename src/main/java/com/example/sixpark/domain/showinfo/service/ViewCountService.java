@@ -29,6 +29,7 @@ public class ViewCountService {
      */
     @Transactional
     public void incrementDailyView(Long genreId, Long showInfoId) {
+
         String date = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
         String key = DAILY_VIEW_KEY_PREFIX + genreId + ":" + date;
 
@@ -43,6 +44,7 @@ public class ViewCountService {
      */
     @Transactional
     public void incrementWeeklyView(Long genreId, Long showInfoId) {
+
         LocalDate now = LocalDate.now();
         LocalDate weekStart = now.minusDays(now.getDayOfWeek().getValue() - 1); // 월요일
         String weekStartStr = weekStart.format(DateTimeFormatter.ISO_DATE);
@@ -59,6 +61,7 @@ public class ViewCountService {
      */
     @Transactional(readOnly = true)
     public Set<ZSetOperations.TypedTuple<Object>> getDailyTopN(Long genreId, int n) {
+
         String date = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
         String key = DAILY_VIEW_KEY_PREFIX + genreId + ":" + date;
 
@@ -70,6 +73,7 @@ public class ViewCountService {
      */
     @Transactional(readOnly = true)
     public Set<ZSetOperations.TypedTuple<Object>> getWeeklyTopN(Long genreId, int n) {
+
         LocalDate now = LocalDate.now();
         LocalDate weekStart = now.minusDays(now.getDayOfWeek().getValue() - 1);
         String weekStartStr = weekStart.format(DateTimeFormatter.ISO_DATE);

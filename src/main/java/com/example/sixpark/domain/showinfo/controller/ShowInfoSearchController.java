@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/showInfoes")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class ShowInfoSearchController {
 
@@ -23,26 +23,22 @@ public class ShowInfoSearchController {
     /**
      * v1: 공연 검색 (JPA 기본)
      */
-    @GetMapping("/v1/search")
+    @GetMapping("/showInfoes/v1/search")
     public ResponseEntity<PageResponse<ShowInfoSearchResponse>> searchV1(@RequestBody ShowInfoSearchRequest request, @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<ShowInfoSearchResponse> resultPage = showInfoSearchService.searchShowInfosV1(request, pageable);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(PageResponse.success("공연 검색이 완료 되었습니다.", resultPage));
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("공연 검색이 완료 되었습니다.", resultPage));
     }
 
     /**
      * v2: 공연 검색 (QueryDSL + 동적 쿼리 + 인덱스)
      */
-    @GetMapping("/v2/search")
+    @GetMapping("/showInfoes/v2/search")
     public ResponseEntity<PageResponse<ShowInfoSearchResponse>> searchV2(@RequestBody ShowInfoSearchRequest request, @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<ShowInfoSearchResponse> resultPage = showInfoSearchService.searchShowInfosV2(request, pageable);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(PageResponse.success("공연 검색이 완료 되었습니다.", resultPage));
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("공연 검색이 완료 되었습니다.", resultPage));
     }
 }

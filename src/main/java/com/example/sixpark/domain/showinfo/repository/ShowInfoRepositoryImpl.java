@@ -1,6 +1,5 @@
 package com.example.sixpark.domain.showinfo.repository;
 
-import com.example.sixpark.domain.showinfo.entity.QShowInfo;
 import com.example.sixpark.domain.showinfo.entity.ShowInfo;
 import com.example.sixpark.domain.showinfo.model.request.ShowInfoSearchRequest;
 import com.querydsl.core.BooleanBuilder;
@@ -30,7 +29,6 @@ public class ShowInfoRepositoryImpl implements ShowInfoCustomRepository{
 
     @Override
     public Page<ShowInfo> searchShowInfosV2(ShowInfoSearchRequest request, Pageable pageable) {
-        log.info("QueryDSL 검색 시작: {}", request);
 
         // 동적 OR 조건 빌드
         BooleanBuilder searchConditions = buildSearchConditions(request);
@@ -125,23 +123,23 @@ public class ShowInfoRepositoryImpl implements ShowInfoCustomRepository{
 
     // 검색 조건 메서드들
     private BooleanExpression containsPrfnm(String prfnm) {
-        return isNotBlank(prfnm) ? QShowInfo.showInfo.prfnm.containsIgnoreCase(prfnm) : null;
+        return isNotBlank(prfnm) ? showInfo.prfnm.containsIgnoreCase(prfnm) : null;
     }
 
     private BooleanExpression containsPrfcast(String prfcast) {
-        return isNotBlank(prfcast) ? QShowInfo.showInfo.prfcast.containsIgnoreCase(prfcast) : null;
+        return isNotBlank(prfcast) ? showInfo.prfcast.containsIgnoreCase(prfcast) : null;
     }
 
     private BooleanExpression containsArea(String area) {
-        return isNotBlank(area) ? QShowInfo.showInfo.showPlace.area.containsIgnoreCase(area) : null;
+        return isNotBlank(area) ? showInfo.showPlace.area.containsIgnoreCase(area) : null;
     }
 
     private BooleanExpression containsFcltynm(String fcltynm) {
-        return isNotBlank(fcltynm) ? QShowInfo.showInfo.showPlace.fcltynm.containsIgnoreCase(fcltynm) : null;
+        return isNotBlank(fcltynm) ? showInfo.showPlace.fcltynm.containsIgnoreCase(fcltynm) : null;
     }
 
     private BooleanExpression containsDtguidance(String dtguidance) {
-        return isNotBlank(dtguidance) ? QShowInfo.showInfo.showPlace.dtguidance.containsIgnoreCase(dtguidance) : null;
+        return isNotBlank(dtguidance) ? showInfo.showPlace.dtguidance.containsIgnoreCase(dtguidance) : null;
     }
 
     /**

@@ -20,7 +20,6 @@ import java.util.*;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
 public class ShowScheduleService {
 
     private final ShowScheduleRepository showScheduleRepository;
@@ -40,6 +39,7 @@ public class ShowScheduleService {
      * 스케줄 생성
      * @param request 공연 장소 id 범위
      */
+    @Transactional
     public void createSchedule(ShowScheduleCreateRequest request) {
         // 공연 장소 한번에 조회
         List<ShowPlace> places = showPlaceRepository.findAllByRange(request.getStartPlaceId(), request.getEndPlaceId());
@@ -63,10 +63,14 @@ public class ShowScheduleService {
             for (LocalDate date : dates) {
                 DayOfWeek day = date.getDayOfWeek(); // 요일
 
-                if (!map.containsKey(day)) continue;
+                if (!map.containsKey(day)) {
+                    continue;
+                }
 
                 for (LocalTime time : map.get(day)) { // 해당 요일의 공연시간마다 스케줄 저장
-                    if(showScheduleRepository.existsByShowInfoAndShowPlaceAndShowDateAndShowTime(info, place, date, time)) continue;
+                    if(showScheduleRepository.existsByShowInfoAndShowPlaceAndShowDateAndShowTime(info, place, date, time)) {
+                        continue;
+                    }
                     schedules.add(new ShowSchedule(info, place, date, time));
                 }
             }
@@ -99,8 +103,9 @@ public class ShowScheduleService {
                     map.put(day, times); // 저장
                 }
             } else { // 요일이 하나인 경우
-                if (DAY_MAP.containsKey(dayPart))
+                if (DAY_MAP.containsKey(dayPart)) {
                     map.put(DAY_MAP.get(dayPart), times); // 저장
+                }
             }
         }
         

@@ -4,7 +4,6 @@ import com.example.sixpark.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -24,15 +23,6 @@ public class UserDto {
 
 
     public static UserDto from(User user) {
-        return new UserDto(
-                user.getId(),
-                user.getEmail(),
-                user.getName(),
-                user.getNickname(),
-                user.getBirth(),
-                user.getRole().name(),
-                user.getCreatedAt(),
-                user.getModifiedAt()
-        );
+        return new UserDto(user.getId(), user.getEmail(), user.getName(), user.getNickname(), user.getBirth(), user.getRole().name(), user.getCreatedAt(), user.getModifiedAt());
     }
 }
