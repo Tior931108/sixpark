@@ -25,7 +25,7 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
         List<CommentParentGetQueryDto> result = queryFactory.select(Projections.constructor(CommentParentGetQueryDto.class, comment.id, comment.post.id, user.id, user.nickname, comment.content, comment.childCommentCount.coalesce(0L), comment.createdAt, comment.modifiedAt))
                 .from(comment)
                 .leftJoin(comment.user, user)
-                .where(postIdCondition(postId), contentCondition(searchKey, postId), comment.parentComment.id.isNull(), comment.isDeleted.isFalse())
+                .where(postIdCondition(postId), comment.parentComment.id.isNull(), comment.isDeleted.isFalse(), contentCondition(searchKey, postId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .orderBy(getOrderSpecifiers(pageable.getSort()))
