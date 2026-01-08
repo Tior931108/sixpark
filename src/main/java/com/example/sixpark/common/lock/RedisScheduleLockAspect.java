@@ -35,12 +35,9 @@ public class RedisScheduleLockAspect {
         // 비즈니스 로직에서 예외가 발생해도 락은 반드시 해제되어야 하기때문에 TTL이 있어도 바로 해제
         try {
             return joinPoint.proceed();  // 메서드 발생
-        } catch (RuntimeException e) {
-            throw e; // CustomException 포함
-        } catch (Throwable t) {
-            throw new RuntimeException(t); // 정말 예측 불가한 예외만
+        } finally {
+            redisTemplate.delete(scheduleLock.key());
         }
-
     }
 
 }
