@@ -41,6 +41,7 @@ public class ShowInfoService {
     private final GenreService genreService;
     private final KopisApiService kopisApiService;
     private final ViewCountService viewCountService;
+    private final CacheEvictionService cacheEvictionService;
 
     /**
      * 공연 생성 (KOPIS API 요청)
@@ -338,6 +339,9 @@ public class ShowInfoService {
         // 공연 정보 수정 - Optinal 부분적 업데이트
         showInfo.updatePartial(request);
 
+        // 캐시 무효화
+        cacheEvictionService.evictSearchCache();
+
         return ShowInfoDetailResponse.from(ShowInfoDto.from(showInfo), ShowPlaceDto.from(showPlace));
     }
 
@@ -351,6 +355,9 @@ public class ShowInfoService {
 
         // 논리 삭제 (ShowPlace도 함께)
         showInfo.softDelete();
+
+        // 캐시 무효화
+        cacheEvictionService.evictSearchCache();
     }
 
     /**

@@ -8,6 +8,7 @@ import com.example.sixpark.domain.showinfo.model.response.ShowInfoSearchResponse
 import com.example.sixpark.domain.showinfo.repository.ShowInfoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -68,6 +69,30 @@ public class ShowInfoSearchService {
         notFoundSearchList(showInfoPage);
 
         return showInfoPage.map(ShowInfoSearchResponse::new);
+    }
+
+    /**
+     * v3: QueryDSL + Local Cache (Caffeine)
+     */
+    @Cacheable(
+            value = "showInfoSearch",
+            key = "'search_' + #request.prfnm + '_' + #request.area + '_' + #pageable.pageNumber",
+            unless = "#result == null || !#result.hasContent()"
+    )
+    public Page<ShowInfoSearchResponse> searchShowInfosV3(ShowInfoSearchRequest request, Pageable pageable) {
+
+        log.info("v3 검색 시작 (Local Cache): {}", request);
+
+        // v2와 동일한 로직 (QueryDSL)
+        Page<ShowInfo> showInfoPage = showInfoRepository.searchShowInfosV2(request, pageable);
+
+        log.info("v3 검색 완료: {} 건", showInfoPage.getTotalElements());
+
+        // 예외처리 공통 메소드
+        notFoundSearchList(showInfoPage);
+
+        return showInfoPage.map(ShowInfoSearchResponse::new);
+
     }
 
     // 공통 예외 처리

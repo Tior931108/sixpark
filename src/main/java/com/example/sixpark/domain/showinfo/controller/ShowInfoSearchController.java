@@ -41,4 +41,16 @@ public class ShowInfoSearchController {
 
         return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("공연 검색이 완료 되었습니다.", resultPage));
     }
+
+    /**
+     * v3: 공연 검색 QueryDSL + 인덱스 + Local Cache
+     */
+    @GetMapping("/showInfoes/v3/search")
+    public ResponseEntity<PageResponse<ShowInfoSearchResponse>> searchV3(@RequestBody ShowInfoSearchRequest request, @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC)
+    Pageable pageable) {
+
+        Page<ShowInfoSearchResponse> resultPage = showInfoSearchService.searchShowInfosV3(request, pageable);
+
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("공연 검색이 완료 되었습니다.", resultPage));
+    }
 }
