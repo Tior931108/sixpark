@@ -43,6 +43,31 @@ class PessimisticLockTest {
     GenreRepository genreRepository;
 
     @Test
+    void 동시에_좌석_선택_테스트_Redis_Lock() {
+        // given
+        setUpSeatData();
+
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+        AtomicInteger successCount = new AtomicInteger();
+
+        Runnable task = () -> {
+            try {
+                SeatSelectRequest request = new SeatSelectRequest();
+                ReflectionTestUtils.setField(request, "scheduleId", 1L);
+                ReflectionTestUtils.setField(request, "seatNo", 1);
+
+                seatService.selectSeatRedisLock(request);
+                successCount.incrementAndGet(); // 성공 카운트
+            } catch (Exception e) {
+                System.out.println(Thread.currentThread().getName() + " 실패: " + e.getMessage());
+            }
+        };
+
+        // when & then
+        run(executor, successCount, task);
+    }
+
+    @Test
     void 동시에_좌석_선택_테스트() {
         // given
         setUpSeatData();
@@ -53,7 +78,8 @@ class PessimisticLockTest {
         Runnable task = () -> {
             try {
                 SeatSelectRequest request = new SeatSelectRequest();
-                ReflectionTestUtils.setField(request, "seatId", 1L);
+                ReflectionTestUtils.setField(request, "scheduleId", 1L);
+                ReflectionTestUtils.setField(request, "seatNo", 1);
 
                 seatService.selectSeatLOCK(request);
                 successCount.incrementAndGet(); // 성공 카운트
@@ -77,7 +103,8 @@ class PessimisticLockTest {
         Runnable task = () -> {
             try {
                 SeatSelectRequest request = new SeatSelectRequest();
-                ReflectionTestUtils.setField(request, "seatId", 1L);
+                ReflectionTestUtils.setField(request, "scheduleId", 1L);
+                ReflectionTestUtils.setField(request, "seatNo", 1);
 
                 seatService.selectSeatNoLock(request);
                 successCount.incrementAndGet(); // 성공 카운트
@@ -133,7 +160,7 @@ class PessimisticLockTest {
         executor.shutdown();
 
         try {
-            Thread.sleep(1500); // 스레드 종료 대기
+            Thread.sleep(5000); // 스레드 종료 대기
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
