@@ -2,6 +2,7 @@ package com.example.sixpark.domain.showinfo.controller;
 
 import com.example.sixpark.common.response.ApiResponse;
 import com.example.sixpark.common.response.PageResponse;
+import com.example.sixpark.common.security.userDetail.AuthUser;
 import com.example.sixpark.domain.showinfo.model.request.ShowInfoUpdateRequest;
 import com.example.sixpark.domain.showinfo.model.response.ShowInfoDetailResponse;
 import com.example.sixpark.domain.showinfo.model.response.ShowInfoResponse;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -72,9 +74,12 @@ public class ShowInfoController {
      * @return 공연 상세 정보 (ShowInfo + Genre + ShowTime)
      */
     @GetMapping("/showInfoes/{showInfoId}")
-    public ResponseEntity<ApiResponse<ShowInfoDetailResponse>> getShowInfoDetail(@PathVariable Long showInfoId) {
+    public ResponseEntity<ApiResponse<ShowInfoDetailResponse>> getShowInfoDetail(@PathVariable Long showInfoId, @AuthenticationPrincipal AuthUser authUser ) {
 
-        ShowInfoDetailResponse response = showInfoService.getShowInfoDetail(showInfoId);
+        // 로그인한 사용자의 ID를 어뷰징 식별자로 사용
+        String identifier = authUser.getUserId().toString();
+
+        ShowInfoDetailResponse response = showInfoService.getShowInfoDetail(showInfoId, identifier);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("공연 상세 조회를 완료했습니다.", response));
 

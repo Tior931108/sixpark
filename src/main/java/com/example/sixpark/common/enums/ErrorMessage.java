@@ -57,7 +57,9 @@ public enum ErrorMessage {
     ALREADY_DELETED_SHOWINFO(HttpStatus.CONFLICT, "이미 삭제된 공연 정보입니다."),
     ALREADY_CANCELED_RESERVATION(HttpStatus.CONFLICT, "이미 취소된 예매입니다."),
     ALREADY_CREATED_RESERVATION(HttpStatus.CONFLICT, "이미 완료된 예매입니다."),
-    SEAT_NOT_SELECTED(HttpStatus.CONFLICT, "선택된 좌석이 아닙니다.")
+    SEAT_NOT_SELECTED(HttpStatus.CONFLICT, "선택된 좌석이 아닙니다."),
+    DAILY_VIEWCOUNT_LIMIT(HttpStatus.CONFLICT, "일간 조회수를 초과하였습니다. (일일 조회수 20회 제한)"),
+    WEEKLY_VIEWCOUNT_LIMIT(HttpStatus.CONFLICT, "주간 조회수를 초과하였습니다. (주간 조회수 150회 제한)")
     ;
 
     private final HttpStatus status;

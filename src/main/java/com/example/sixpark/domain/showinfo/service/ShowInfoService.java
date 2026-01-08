@@ -298,7 +298,7 @@ public class ShowInfoService {
      * @return 공연 상세 정보 (ShowInfo + Genre + ShowTime)
      */
     @Transactional(readOnly = true)
-    public ShowInfoDetailResponse getShowInfoDetail(Long showInfoId) {
+    public ShowInfoDetailResponse getShowInfoDetail(Long showInfoId, String identifier) {
         // 장르 기반 공연 정보 조회 (Genre Fetch Join)
         ShowInfo showInfo = getShowInfoAndGenreById(showInfoId);
 
@@ -306,8 +306,20 @@ public class ShowInfoService {
         ShowPlace showPlace = showPlaceService.getShowPlaceById(showInfoId);
 
         // 상세 조회시 조회수 증가 - 일간/주간 모두포함
-        viewCountService.incrementDailyView(showInfo.getGenre().getId(), showInfoId);
-        viewCountService.incrementWeeklyView(showInfo.getGenre().getId(), showInfoId);
+        boolean dailyIncremented = viewCountService.incrementDailyView(showInfo.getGenre().getId(), showInfoId, identifier);
+        boolean weeklyIncremented = viewCountService.incrementWeeklyView(showInfo.getGenre().getId(), showInfoId, identifier);
+
+        // 어뷰징 방지 : 일간 조회 20회 제한
+        if(!dailyIncremented){
+            throw new CustomException(ErrorMessage.DAILY_VIEWCOUNT_LIMIT);
+        }
+
+        // 어뷰징 방지 : 주간 조회 150회 제한
+        if(!weeklyIncremented){
+            throw new CustomException(ErrorMessage.WEEKLY_VIEWCOUNT_LIMIT);
+        }
+
+        log.debug("조회수 증가 - userId: {}, daily: {}, weekly: {}", identifier, dailyIncremented, weeklyIncremented);
 
         return ShowInfoDetailResponse.from(ShowInfoDto.from(showInfo), ShowPlaceDto.from(showPlace));
     }
