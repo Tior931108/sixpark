@@ -15,14 +15,12 @@ import java.util.function.Supplier;
 @Slf4j
 public class LockService {
 
-    private static final long TTL = 3000; // 3초
-
     private final RedisLockRepository redisLockRepository;
 
-    public <T> T executeWithLock(String key, Supplier<T> action) {
+    public <T> T executeWithLock(String key, long ttl, Supplier<T> action) {
         String lockValue = UUID.randomUUID().toString();
 
-        boolean locked = redisLockRepository.acquireLock(key, lockValue, TTL); // 🔒 락 획득
+        boolean locked = redisLockRepository.acquireLock(key, lockValue, ttl); // 🔒 락 획득
         log.info("락 획득 성공 여부: {}", locked);
         if (!locked) { // 락 획득 실패 시 즉시 예외 처리
             throw new CustomException(ErrorMessage.SEAT_ALREADY_SELECTED);

@@ -1,5 +1,6 @@
 package com.example.sixpark.domain.showinfo.service;
 
+import com.example.sixpark.common.lock.RedisScheduleLock;
 import com.example.sixpark.domain.genre.repository.GenreRepository;
 import com.example.sixpark.domain.showinfo.repository.ShowInfoRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -30,44 +32,34 @@ public class ViewCountSyncService {
     /**
      * Redis → DB 동기화 (5분마다)
      * cron: 초 분 시 일 월 요일
-     *
+     * <p>
      * 분산 락으로 중복 스케줄 실행 방지
      */
     @Scheduled(cron = "0 */5 * * * *")  // 5분마다 실행
     @Transactional
+    @RedisScheduleLock(key = "sync:lock:veiw-count", ttl = 300000)
     public void syncViewCountsToDatabase() {
         log.info("=== 조회수 동기화 시작 ===");
 
-        // 락 획득 시도 (10초 타임아웃, 5분 유지)
-        redisTemplate.opsForValue().setIfAbsent(SYNC_LOCK_KEY, "locked", 5, TimeUnit.MINUTES);
+        // 오늘 날짜
+        String today = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
 
-        try {
-            // 오늘 날짜
-            String today = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
-
-            /**
-             * 연극, 뮤지컬, 서양음악(클래식), 한국음악(국악), 대중응악, 무용(서양/한국무용), 대중무용, 서커스/마술, 복합
-             * >> KOPIS API 기준 장르 9개
-             */
-            // 모든 장르에 대해 동기화 (1~9번 장르)
-            List<Long> genreIds = genreRepository.findAllGenreIds();
-            for (Long genreId : genreIds) {
-                syncGenreDailyViews(genreId, today);
-            }
-
-            log.info("=== 조회수 동기화 완료 ===");
-
-        } catch (Exception e) {
-            log.error("조회수 동기화 실패", e);
-        } finally {
-            // 분산 락 해제
-            redisTemplate.delete(SYNC_LOCK_KEY);
+        /**
+         * 연극, 뮤지컬, 서양음악(클래식), 한국음악(국악), 대중응악, 무용(서양/한국무용), 대중무용, 서커스/마술, 복합
+         * >> KOPIS API 기준 장르 9개
+         */
+        // 모든 장르에 대해 동기화 (1~9번 장르)
+        List<Long> genreIds = genreRepository.findAllGenreIds();
+        for (Long genreId : genreIds) {
+            syncGenreDailyViews(genreId, today);
         }
+
+        log.info("=== 조회수 동기화 완료 ===");
     }
 
     /**
      * 특정 장르의 일간 조회수 동기화
-     *
+     * <p>
      * 주간은 redis DB 에서만 저장함.
      */
     private void syncGenreDailyViews(Long genreId, String date) {
