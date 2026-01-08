@@ -29,4 +29,18 @@ public class ShowInfoSearchRequest {
     private boolean isNotBlank(String str) {
         return str != null && !str.trim().isEmpty();
     }
+
+    /**
+     * 캐시 키 생성을 위한 toString()
+     */
+    @Override
+    public String toString() {
+        return "ShowInfoSearchRequest{" +
+                "prfnm='" + prfnm + '\'' +
+                ", prfcast='" + prfcast + '\'' +
+                ", area='" + area + '\'' +
+                ", fcltynm='" + fcltynm + '\'' +
+                ", dtguidance='" + dtguidance + '\'' +
+                '}';
+    }
 }
