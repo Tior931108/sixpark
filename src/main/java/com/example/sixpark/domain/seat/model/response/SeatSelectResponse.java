@@ -1,0 +1,22 @@
+package com.example.sixpark.domain.seat.model.response;
+
+import com.example.sixpark.domain.seat.model.dto.SeatDto;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public class SeatSelectResponse {
+
+    private final Long id;
+    private final Long scheduleId;
+    private final int seatNo;
+
+    public static SeatSelectResponse from(SeatDto dto) {
+        return new SeatSelectResponse(
+                dto.getId(),
+                dto.getShowSchedule().getId(),
+                dto.getSeatNo()
+        );
+    }
+}

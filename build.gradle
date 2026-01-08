@@ -59,8 +59,20 @@ dependencies {
     implementation(platform("software.amazon.awssdk:bom:2.27.21"))
     implementation("software.amazon.awssdk:s3")
 
+    // cache
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    // Caffeine Cache
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // XML 파싱
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // Jackson Java 8 날짜/시간 지원
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 tasks.named('test') {

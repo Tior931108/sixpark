@@ -1,0 +1,20 @@
+package com.example.sixpark.domain.showplace.repository;
+
+import com.example.sixpark.domain.showplace.entity.ShowPlace;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface ShowPlaceRepository extends JpaRepository<ShowPlace, Long> {
+
+    // ShowInfo ID로 ShowPlace 조회 (1:1 관계이므로 Optional 반환)
+    @Query("SELECT s FROM ShowPlace s WHERE s.showInfo.id = :showInfoId")
+    Optional<ShowPlace> findByShowInfoId(@Param("showInfoId") Long showInfoId);
+
+    // 범위로 ShowPlace 조회
+    @Query("SELECT sp FROM ShowPlace sp WHERE sp.id BETWEEN :start AND :end")
+    List<ShowPlace> findAllByRange(@Param("start") Long startPlaceId, @Param("end") Long endPlaceId);
+}

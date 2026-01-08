@@ -1,8 +1,9 @@
 package com.example.sixpark.common.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 public class ApiResponse<T> {
@@ -10,13 +11,14 @@ public class ApiResponse<T> {
     private final boolean success;
     private final String message;
     private final T data;
-    private final Instant timestamp;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private final LocalDateTime timestamp;
 
     public ApiResponse(boolean success, String message, T data) {
         this.success = success;
         this.message = message;
         this.data = data;
-        this.timestamp = Instant.now();
+        this.timestamp = LocalDateTime.now();
     }
 
     // 성공 응답 (데이터 없음)

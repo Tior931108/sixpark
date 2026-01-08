@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "comments")
+@Table(name = "comments", indexes = {@Index(name = "idx_comments_asc", columnList = "post_id, parent_id, isDeleted, createdAt asc, id asc"), @Index(name = "idx_comments_desc", columnList = "post_id, parent_id, isDeleted, createdAt desc, id desc")})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseEntity {
 
@@ -33,16 +33,33 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "parent_id")
     private Comment parentComment;
 
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
+    private Long childCommentCount;
+
     public Comment(String content, Post post, User user, Comment parentComment) {
         this.content = content;
         this.post = post;
         this.user = user;
         this.parentComment = parentComment;
+        this.childCommentCount = 0L;
     }
 
     public void update(String content) {
         this.content = content;
     }
 
+    public void softDelete() {
+        this.isDeleted = true;
+        this.content = "해당 댓글은 삭제되었습니다";
+    }
 
+    public void addChildComments() {
+        this.childCommentCount++;
+    }
+
+    public void minusChildComments() {
+        this.childCommentCount--;
+    }
 }
