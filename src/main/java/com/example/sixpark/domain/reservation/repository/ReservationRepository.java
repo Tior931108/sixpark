@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long>, ReservationCustomRepository {
 
-    boolean existsByUserAndSeat(User user, Seat seat);
+    boolean existsByUserAndSeatAndIsDeletedFalse(User user, Seat seat);
 }

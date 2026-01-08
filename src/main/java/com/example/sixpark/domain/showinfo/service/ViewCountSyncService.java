@@ -37,7 +37,7 @@ public class ViewCountSyncService {
      */
     @Scheduled(cron = "0 */5 * * * *")  // 5분마다 실행
     @Transactional
-    @RedisScheduleLock(key = "sync:lock:veiw-count", ttl = 300000)
+    @RedisScheduleLock(key = SYNC_LOCK_KEY, ttl = 300000)
     public void syncViewCountsToDatabase() {
         log.info("=== 조회수 동기화 시작 ===");
 
