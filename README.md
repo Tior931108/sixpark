@@ -112,7 +112,7 @@
   <summary> 공연정보/시간및장소/스케줄/좌석 </summary>
   
   - `POST /api/admin/showInfoes` - 공연 생성 (KOPIS api 요청)
-  - `POST /api/admin/show-schedule` - 공연스게줄 생성
+  - `POST /api/admin/show-schedule` - 공연스케줄 생성
   - `POST /api/admin/seat` - 좌석 생성
   - `GET /api/genre/{genreId}/showInfoes` - 장르별 공연 전체 조회 - 페이징
   - `GET /api/showInfoes/{showInfoId}` - 공연 상세 조회
@@ -156,7 +156,33 @@
 
 ## 성능 개선 사항
 
+### 좌석 동시성 검증 테스트 
+- LOCK 없는 경우
+<img width="623" height="311" alt="image" src="https://github.com/user-attachments/assets/41859bc0-e79f-47b3-bda1-f0203866745e" />
+
+- 비관적 락 설정
+<img width="672" height="313" alt="image" src="https://github.com/user-attachments/assets/a9da91ac-edae-4256-8455-191917a1ce99" />
+
+- Redis 락 설정
+<img width="679" height="313" alt="image" src="https://github.com/user-attachments/assets/f3e10c0b-c6d0-4d7b-8d1d-fb693318b3a2" />
+
+### 공연 검색 성능 개선
+- JPA 기본 버전 (v1)
+<img width="670" height="316" alt="image" src="https://github.com/user-attachments/assets/ee0ac973-ba5b-4672-8416-5b3065b6e4d2" />
+
+- QueryDSL + INDEX (v2)
+<img width="677" height="313" alt="image" src="https://github.com/user-attachments/assets/b0d3ca65-714a-4403-a513-4f4eb405d6fa" />
+
+- Local Cache (v3)
+<img width="677" height="316" alt="image" src="https://github.com/user-attachments/assets/7ab0c919-98fa-4207-9163-7f56e3da9e01" />
+
 ## 실행 방법
+### 프로젝트 최초 실행시 관리자 권한으로 실행할 API [필수] 
+- 
+
+1. `POST /api/admin/showInfoes` - 공연 생성 (KOPIS api 요청)
+2. `POST /api/admin/show-schedule` - 공연스케줄 생성
+3. `POST /api/admin/seat` - 좌석 생성
 
 ### 프로젝트 실행
 
@@ -182,7 +208,8 @@ sixpark
 	│   ├── exception       # 전역 예외 처리
 	│   ├── lock            # AOP를 이용한 Redis lock 로직
 	│   ├── response        # 공통 응답 포멧
-	│   └── security        # JWT, Security등 보안 설정     
+	│   └── security        # JWT, Security등 보안 설정
+	│   └── utils           # 최초 관리자 권한 정보 (Administrator)
 	└── domain
 	    ├── user            # 사용자/인증인가 도메인
 	    ├── showinfo        # 공연 정보 도메인
